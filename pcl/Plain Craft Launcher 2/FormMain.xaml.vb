@@ -362,7 +362,6 @@ Public Class FormMain
         Handle = New WindowInteropHelper(Me).Handle
         '读取设置
         UpdateBackgroundAndTitleBar()
-        PageSetupUI.HiddenRefresh()
         PageSetupUI.BackgroundRefresh(False, True)
         MusicRefreshPlay(False, True)
         '扩展按钮
@@ -840,17 +839,6 @@ Public Class FormMain
         If e.Key = Key.F11 AndAlso PageCurrent = FormMain.PageType.InstanceSelect Then
             FrmSelectRight.ShowHidden = Not FrmSelectRight.ShowHidden
             LoaderFolderRun(McInstanceListLoader, McFolderSelected, LoaderFolderRunType.ForceRun, MaxDepth:=1, ExtraPath:="versions\")
-            Return
-        End If
-        '更改功能隐藏可见性
-        If e.Key = Key.F12 Then
-            PageSetupUI.HiddenForceShow = Not PageSetupUI.HiddenForceShow
-            If PageSetupUI.HiddenForceShow Then
-                Hint("功能隐藏设置已暂时关闭！", HintType.Green)
-            Else
-                Hint("功能隐藏设置已重新开启！", HintType.Green)
-            End If
-            PageSetupUI.HiddenRefresh()
             Return
         End If
         '按 F5 刷新页面

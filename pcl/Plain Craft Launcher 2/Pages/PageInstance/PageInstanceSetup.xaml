@@ -8,34 +8,22 @@
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel x:Name="PanMain" Margin="25,25,25,25">
             <local:MyCard x:Name="CardArgument" Margin="0,0,0,15" Title="启动选项">
-                <StackPanel Margin="25,40,25,21">
+                <StackPanel Margin="25,40,25,15">
+                    <Grid Margin="0,0,0,9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="游戏窗口标题" Margin="0,0,25,0" />
+                        <local:MyTextBox x:Name="TextArgumentTitle" Grid.Column="1" local:SettingService.Key="VersionArgumentTitle" ToolTip="自定义游戏窗口标题，留空则跟随全局设置。支持替换标记，例如 {date}、{time}。" HintText="跟随全局设置" MaxLength="100" />
+                    </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
                             <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="60" />
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="0" />
-                            <RowDefinition Height="0" />
-                            <RowDefinition Height="28" />
-                            <RowDefinition Height="9" />
-                            <RowDefinition Height="28" />
-                            <RowDefinition Height="9" />
-                            <RowDefinition Height="0" />
-                            <RowDefinition Height="0" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Text="版本隔离" Margin="0,0,25,0" Visibility="Collapsed" />
-                        <local:MyComboBox x:Name="ComboArgumentIndieV2" Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="1" Visibility="Collapsed">
-                            <local:MyComboBoxItem Content="开启" ToolTipService.InitialShowDelay="0"
-                                                  ToolTip="与其他版本的存档、Mod 等文件相互独立，互不干涉。&#xa;这会使你无法跨版本共享存档，但可以规避 Mod 冲突问题。"/>
-                            <local:MyComboBoxItem Content="关闭" ToolTipService.InitialShowDelay="0"
-                                                  ToolTip="与其余关闭隔离的版本共享存档、Mod 等文件。&#xa;若存在多个安装了 Mod 的版本，可能会由于 Mod 冲突而导致崩溃。"/>
-                        </local:MyComboBox>
-                        <TextBlock Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Text="游戏窗口标题" Margin="0,0,25,0" />
-                        <local:MyTextBox x:Name="TextArgumentTitle" Grid.Row="2" Grid.ColumnSpan="2" local:SettingService.Key="VersionArgumentTitle" Grid.Column="1" ToolTip="自定义游戏窗口标题，留空则跟随全局设置。支持替换标记，例如 {date}、{time}。" HintText="跟随全局设置" MaxLength="100" />
-                        <TextBlock Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Left" Text="自定义信息" Margin="0,0,25,0" />
-                        <local:MyTextBox x:Name="TextArgumentInfo" Grid.Row="4" Grid.ColumnSpan="2" local:SettingService.Key="VersionArgumentInfo" Grid.Column="1" HintText="跟随全局设置" ToolTip="该信息会显示在游戏主界面的左下角，与 F3 调试页面的左上角。&#xa;若留空，则跟随全局设置的值。&#xa;&#xa;支持替换标记，例如 {date}、{time}。">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="自定义信息" Margin="0,0,25,0" />
+                        <local:MyTextBox x:Name="TextArgumentInfo" Grid.Column="1" local:SettingService.Key="VersionArgumentInfo" HintText="跟随全局设置" ToolTip="显示在游戏主界面左下角与 F3 调试页面。留空则跟随全局设置。支持替换标记，例如 {date}、{time}。">
                             <local:MyTextBox.ValidateRules>
                                 <local:ValidateExcept>
                                     <local:ValidateExcept.Excepts>
@@ -46,39 +34,26 @@
                                 </local:ValidateExcept>
                             </local:MyTextBox.ValidateRules>
                         </local:MyTextBox>
-                        <TextBlock VerticalAlignment="Center" Grid.Row="6" HorizontalAlignment="Left" Text="Java" Margin="0,0,25,0" Visibility="Collapsed" />
-                        <Grid Grid.ColumnSpan="2" Grid.Row="6" Grid.Column="1" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <local:MyComboBox x:Name="ComboArgumentJava" local:SettingService.Key="VersionArgumentJavaV2">
-                                <local:MyComboBoxItem Content="自动选择"
-                                                  ToolTip="由 PCL 自动分析需要的 Java 版本，如果没有合适的 Java 则自动下载。" />
-                                <local:MyComboBoxItem Content="自动选择指定版本的 Java" 
-                                                  ToolTip="手动输入一个 Java 版本范围，PCL 将选择符合该范围的 Java，如果没有合适的 Java 则自动下载。&#xa;适合部分 Mod 需要特定 Java 版本才能启动的情况。" />
-                                <local:MyComboBoxItem Content="使用版本文件夹中的 Java"
-                                                  ToolTip="手动在当前版本的文件夹中放置 Java 后，PCL 将自动搜索并使用该 Java。&#xa;适合整合包自带 Java 的情况。" />
-                                <local:MyComboBoxItem Content="使用指定的 Java"
-                                                  ToolTip="手动指定所使用的 Java 的绝对路径。&#xa;若将该版本打包到其他电脑，此设置可能会失效。" />
-                            </local:MyComboBox>
-                            <local:MyTextBox x:Name="TextArgumentJavaRange" local:SettingService.Key="VersionArgumentJavaRange"
-                                             Grid.Column="1" Margin="7,0,0,0" Width="200"
-                                             ToolTip="输入允许的 Java 版本区间，例如 [17.0.1, 25.0)。&#xa;方括号代表包含，圆括号代表不包含。不写其中一侧代表不限制。&#xa;&#xa;例如：&#xa;[21.0, ) 代表至少需要 Java 21。&#xa;(, 18.0) 代表允许 Java 17-，但不允许 Java 18+（圆括号代表不包含）。&#xa;[8.0.81, 8.0.141] 则代表仅允许 Java 8u81 ~ 8u141。&#xa;&#xa;你可以在左侧选择 “使用指定的 Java” 来查看你电脑中已有的 Java 的版本号。" HintText="版本区间…" MaxLength="100" />
-                        </Grid>
-                        <local:MyHint Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" x:Name="HintArgumentJava" Margin="0,8,0,0" Visibility="Collapsed" />
-                        <Grid x:Name="PanArgumentJavaSelect" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Visibility="Collapsed"
-                              Height="28" Margin="0,9,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <local:MyComboBox x:Name="ComboArgumentJavaSelect" Grid.Column="0" />
-                            <TextBlock x:Name="LabArgumentJava" Grid.Column="0" Margin="8.5,0,21.5,0" IsHitTestVisible="False" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                            <local:MyIconButton Margin="5,2,0,2" Grid.Column="1" x:Name="BtnArgumentJavaSearch"
-                                Logo="M512.0 838.3c-80.2 0-153.4-29.3-210.2-77.4l75.5-75.5c11.5-11.5 25.8-22.0 25.8-37.0a27.2 27.2 0 0 0-27.1-27.1H104.0c-27.1 0-27.1 23.9-27.1 27.1v271.9a27.1 27.1 0 0 0 27.1 27.1c15.0 0 27.8-16.6 42.5-31.2l77.9-77.9c76.6 67.7 177.1 108.9 287.4 108.9 221.7 0 404.5-166.0 431.2-380.6h-109.8c-25.9 154.2-159.7 271.9-321.3 271.9zM919.9 76.6c-15.0 0-27.8 16.6-42.5 31.3L799.5 185.8c-76.5-67.7-177.1-108.9-287.4-108.9-221.8 0-404.5 166.1-431.3 380.6H190.6c25.9-154.2 159.7-271.9 321.4-271.9 80.2 0 153.4 29.3 210.1 77.4l-75.5 75.5c-11.6 11.5-25.8 22.0-25.8 37.1a27.2 27.2 0 0 0 27.1 27.1h271.9c27.1 0 27.1-23.9 27.1-27.1V103.8a27.1 27.1 0 0 0-27.1-27.1z" />
-                        </Grid>
                     </Grid>
+                    <StackPanel Visibility="Collapsed">
+                        <local:MyComboBox x:Name="ComboArgumentIndieV2">
+                            <local:MyComboBoxItem Content="开启" />
+                            <local:MyComboBoxItem Content="关闭" />
+                        </local:MyComboBox>
+                        <local:MyComboBox x:Name="ComboArgumentJava" local:SettingService.Key="VersionArgumentJavaV2">
+                            <local:MyComboBoxItem Content="自动选择" />
+                            <local:MyComboBoxItem Content="自动选择指定版本的 Java" />
+                            <local:MyComboBoxItem Content="使用版本文件夹中的 Java" />
+                            <local:MyComboBoxItem Content="使用指定的 Java" />
+                        </local:MyComboBox>
+                        <local:MyTextBox x:Name="TextArgumentJavaRange" local:SettingService.Key="VersionArgumentJavaRange" MaxLength="100" />
+                        <local:MyHint x:Name="HintArgumentJava" Visibility="Collapsed" />
+                        <Grid x:Name="PanArgumentJavaSelect" Visibility="Collapsed">
+                            <local:MyComboBox x:Name="ComboArgumentJavaSelect" />
+                            <TextBlock x:Name="LabArgumentJava" />
+                            <local:MyIconButton x:Name="BtnArgumentJavaSearch" />
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="内存分配">
