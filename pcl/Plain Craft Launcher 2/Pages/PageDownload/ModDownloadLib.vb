@@ -1890,6 +1890,10 @@ Retry:
         If Not Request.IsIntermediateOutput Then
             LoaderList.Add(New LoaderTask(Of Integer, Integer)("删除忽略标识", Sub() FileUtils.Delete(VersionFolder & ".pclignore")) With {.Show = False})
         End If
+        'LiteCraft 核心文件与资源准备（作为安装流程的一部分显示进度）
+        If ModLiteCraft.IsLiteCraftVersion(Request.Components.MinecraftVersion) AndAlso Not Request.IsIntermediateOutput Then
+            LoaderList.AddRange(ModLiteCraft.InstallLoaders(VersionFolder, Request.NewInstanceName, McFolderSelected))
+        End If
         '总加载器
         Return LoaderList
     End Function
@@ -2132,11 +2136,6 @@ Retry:
             Case LoadState.Finished
                 WriteIni(McFolderSelected & "PCL.ini", "InstanceCache", "") '清空缓存（合并安装会先生成文件夹，这会在刷新时误判为可以使用缓存）
                 Hint(Loader.Name & "成功！", HintType.Green)
-                If ModLiteCraft.PendingInstallFolder <> "" Then
-                    Dim LiteCraftFolder As String = ModLiteCraft.PendingInstallFolder
-                    ModLiteCraft.PendingInstallFolder = ""
-                    ModLiteCraft.AfterInstall(LiteCraftFolder)
-                End If
                 'TODO: 自动选择安装成功的版本
             Case LoadState.Failed
                 MyMsgBox(Loader.Error.GetDisplay(True), Loader.Name & "失败", IsWarn:=True)

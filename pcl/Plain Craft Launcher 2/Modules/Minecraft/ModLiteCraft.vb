@@ -10,7 +10,7 @@ Public Module ModLiteCraft
     ''' 版本列表配置的 SHA-256。配置或镜像内容与此不符时视为被篡改，拒绝使用。
     ''' 更新 versions.json 后必须同步更新此值并重新发布启动器。
     ''' </summary>
-    Private Const VersionsConfigSha256 As String = "78307d3f35fefa2382746bf3aac19e4544993c0a917b261dcbc36c73abc26a93"
+    Private Const VersionsConfigSha256 As String = "5c1ef8c4eab0422c1042436c13019f6e649c47534b166f3fa1ef0190c225cb4e"
 
     Private Function VersionsConfigUrls() As String()
         Const RepoPath As String = "Cheerimy-Studio/litecraft-launcher/main/manifests/versions.json"
@@ -135,44 +135,33 @@ Public Module ModLiteCraft
     End Sub
 
     ''' <summary>
-    ''' 等待核心文件处理的安装目录；为空表示当前安装不是 LiteCraft。
+    ''' 把核心文件下载、解压、资源准备和版本注册接到 PCL 原版安装流程里，
+    ''' 进度显示在安装页的任务管理器中。
     ''' </summary>
-    Public PendingInstallFolder As String = ""
+    Public Function InstallLoaders(Folder As String, InstanceName As String, MinecraftFolder As String) As List(Of LoaderBase)
+        Dim CoreZip As String = Path.Combine(Path.GetTempPath(), "LiteCraft-Core-26.3-" & Guid.NewGuid().ToString("N") & ".zip")
+        Dim Result As New List(Of LoaderBase)
+        Result.Add(New LoaderTask(Of String, String)("下载 LiteCraft 核心文件",
+            Sub(Task As LoaderTask(Of String, String))
+                DownloadCore(Task, CoreZip)
+            End Sub) With {.ProgressWeight = 20, .Block = True})
+        Result.Add(New LoaderTask(Of String, String)("解压 LiteCraft 核心文件",
+            Sub(Task As LoaderTask(Of String, String))
+                ExtractCore(Task, CoreZip)
+            End Sub) With {.ProgressWeight = 2, .Block = True})
+        Result.Add(New LoaderTask(Of String, String)("准备 LiteCraft 资源",
+            Sub(Task As LoaderTask(Of String, String))
+                PrepareResources(Task, Folder, InstanceName, MinecraftFolder)
+            End Sub) With {.ProgressWeight = 60, .Block = True})
+        Result.Add(New LoaderTask(Of String, String)("注册 LiteCraft 版本",
+            Sub(Task As LoaderTask(Of String, String))
+                EnsureVersion(Folder, InstanceName)
+                Task.Progress = 1
+            End Sub) With {.ProgressWeight = 1, .Block = True})
+        Return Result
+    End Function
 
-    ''' <summary>
-    ''' 原生安装完成后，下载并解压 LiteCraft 核心，再用 PCL 安装好的原版文件准备资源。
-    ''' </summary>
-    Public Sub AfterInstall(Folder As String)
-        RunInNewThread(
-            Sub()
-                Try
-                    Hint("正在获取 LiteCraft 核心文件…", HintType.Blue)
-                    If Not DownloadCore() Then Throw New Exception("核心文件下载或校验失败，请检查网络后重试")
-
-                    Dim InstanceName As String = New DirectoryInfo(Folder.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)).Name
-                    Dim VersionJson As String = Path.Combine(Folder, InstanceName & ".json")
-                    Dim ClientJar As String = Path.Combine(Folder, InstanceName & ".jar")
-                    Dim ResDir As String = Path.Combine(BaseDir(), "resources", "26.3")
-
-                    Hint("正在准备 LiteCraft 资源，这一步需要几分钟…", HintType.Blue)
-                    Dim Code As Integer = Prepare(McFolderSelected, ResDir,
-                        If(File.Exists(VersionJson), VersionJson, Nothing),
-                        If(File.Exists(ClientJar), ClientJar, Nothing))
-                    If Code <> 0 Then Throw New Exception("资源准备失败，退出码 " & Code & "，详细信息见日志")
-                    If Not File.Exists(Path.Combine(ResDir, "horizon-resources.json")) Then
-                        Throw New Exception("资源准备没有生成 horizon-resources.json")
-                    End If
-
-                    EnsureVersion()
-                    Hint("LiteCraft 26.3 已安装完成，可以在启动页选择并启动", HintType.Green)
-                Catch ex As Exception
-                    Logger.Error(ex, "LiteCraft 安装后处理失败")
-                    RunInUi(Sub() MyMsgBox("LiteCraft 核心文件或资源准备失败：" & vbCrLf & ex.Message, "LiteCraft 26.3", "确定", IsWarn:=True))
-                End Try
-            End Sub, "LiteCraft Install")
-    End Sub
-
-    Private Function DownloadCore() As Boolean
+    Private Sub DownloadCore(Task As LoaderTask(Of String, String), Temp As String)
         Dim Config As JObject = LoadVersionsConfig()
         Dim Versions As JArray = TryCast(Config("versions"), JArray)
         If Versions Is Nothing OrElse Versions.Count = 0 Then Throw New Exception("版本配置为空")
@@ -188,62 +177,107 @@ Public Module ModLiteCraft
             Next
         End If
 
-        Dim Temp As String = Path.Combine(Path.GetTempPath(), "LiteCraft-Core-26.3-" & Guid.NewGuid().ToString("N") & ".zip")
-        Try
-            For Each Url As String In Urls
-                Try
-                    Logger.Info("下载 LiteCraft 核心文件：" & Url)
-                    Using Client As New WebClient()
-                        Client.Headers("User-Agent") = "LiteCraft-Launcher"
-                        Client.DownloadFile(Url, Temp)
-                    End Using
-                    Dim Actual As String = CryptographyUtils.ComputeFileHash(Temp, CryptographyUtils.HashMethod.Sha256)
-                    If Not String.Equals(Actual, Sha, StringComparison.OrdinalIgnoreCase) Then
-                        Logger.Warn($"LiteCraft 核心文件校验失败：{Url}，实际 SHA-256 {Actual}")
-                        File.Delete(Temp)
-                        Continue For
-                    End If
-                    If Size > 0 AndAlso New FileInfo(Temp).Length <> Size Then
-                        Logger.Warn($"LiteCraft 核心文件大小不符：{Url}")
-                        File.Delete(Temp)
-                        Continue For
-                    End If
-                    Directory.CreateDirectory(BaseDir())
-                    Using Archive As IO.Compression.ZipArchive = IO.Compression.ZipFile.OpenRead(Temp)
-                        For Each Entry As IO.Compression.ZipArchiveEntry In Archive.Entries
-                            Dim Dest As String = Path.Combine(BaseDir(), Entry.FullName)
-                            If String.IsNullOrEmpty(Entry.Name) Then
-                                Directory.CreateDirectory(Dest)
-                            Else
-                                Directory.CreateDirectory(Path.GetDirectoryName(Dest))
-                                Entry.ExtractToFile(Dest, True)
-                            End If
-                        Next
-                    End Using
-                    Logger.Info("LiteCraft 核心文件已解压到 " & BaseDir())
-                    Return True
-                Catch ex As Exception
-                    Logger.Warn(ex, "LiteCraft 核心文件下载失败：" & Url)
-                    Try
-                        If File.Exists(Temp) Then File.Delete(Temp)
-                    Catch
-                    End Try
-                End Try
-            Next
-        Finally
+        Dim LastError As String = ""
+        For Each Url As String In Urls
             Try
-                If File.Exists(Temp) Then File.Delete(Temp)
-            Catch
+                Logger.Info("下载 LiteCraft 核心文件：" & Url)
+                Using Client As New HttpClient()
+                    Client.Timeout = TimeSpan.FromMinutes(10)
+                    Using Response As HttpResponseMessage = Client.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead).Result
+                        Response.EnsureSuccessStatusCode()
+                        Dim Total As Long? = Response.Content.Headers.ContentLength
+                        Using Source As Stream = Response.Content.ReadAsStreamAsync().Result
+                            Using Dest As Stream = File.Create(Temp)
+                                Dim Buffer(81920) As Byte
+                                Dim Done As Long = 0
+                                Do
+                                    If Task.IsCanceled Then Throw New OperationCanceledException()
+                                    Dim Read As Integer = Source.Read(Buffer, 0, Buffer.Length)
+                                    If Read <= 0 Then Exit Do
+                                    Dest.Write(Buffer, 0, Read)
+                                    Done += Read
+                                    If Total.HasValue AndAlso Total.Value > 0 Then Task.Progress = Done / Total.Value
+                                Loop
+                            End Using
+                        End Using
+                    End Using
+                End Using
+
+                Dim Actual As String = CryptographyUtils.ComputeFileHash(Temp, CryptographyUtils.HashMethod.Sha256)
+                If Not String.Equals(Actual, Sha, StringComparison.OrdinalIgnoreCase) Then
+                    Logger.Warn($"LiteCraft 核心文件校验失败：{Url}，实际 SHA-256 {Actual}")
+                    File.Delete(Temp)
+                    LastError = "SHA-256 校验失败"
+                    Continue For
+                End If
+                If Size > 0 AndAlso New FileInfo(Temp).Length <> Size Then
+                    Logger.Warn($"LiteCraft 核心文件大小不符：{Url}")
+                    File.Delete(Temp)
+                    LastError = "文件大小不符"
+                    Continue For
+                End If
+                Task.Progress = 1
+                Return
+            Catch ex As OperationCanceledException
+                Throw
+            Catch ex As Exception
+                Logger.Warn(ex, "LiteCraft 核心文件下载失败：" & Url)
+                LastError = ex.Message
+                Try
+                    If File.Exists(Temp) Then File.Delete(Temp)
+                Catch
+                End Try
             End Try
+        Next
+        Throw New Exception("LiteCraft 核心文件下载失败：" & LastError)
+    End Sub
+
+    Private Sub ExtractCore(Task As LoaderTask(Of String, String), Temp As String)
+        If Not File.Exists(Temp) Then Throw New Exception("核心文件不存在：" & Temp)
+        Directory.CreateDirectory(BaseDir())
+        Using Archive As IO.Compression.ZipArchive = IO.Compression.ZipFile.OpenRead(Temp)
+            Dim Total As Integer = Math.Max(Archive.Entries.Count, 1)
+            Dim Done As Integer = 0
+            For Each Entry As IO.Compression.ZipArchiveEntry In Archive.Entries
+                If Task.IsCanceled Then Throw New OperationCanceledException()
+                Dim Dest As String = Path.Combine(BaseDir(), Entry.FullName)
+                If String.IsNullOrEmpty(Entry.Name) Then
+                    Directory.CreateDirectory(Dest)
+                Else
+                    Directory.CreateDirectory(Path.GetDirectoryName(Dest))
+                    Entry.ExtractToFile(Dest, True)
+                End If
+                Done += 1
+                Task.Progress = Done / Total
+            Next
+        End Using
+        Try
+            File.Delete(Temp)
+        Catch
         End Try
-        Return False
-    End Function
+        Logger.Info("LiteCraft 核心文件已解压到 " & BaseDir())
+    End Sub
+
+    Private Sub PrepareResources(Task As LoaderTask(Of String, String), Folder As String, InstanceName As String, MinecraftFolder As String)
+        Dim VersionJson As String = Path.Combine(Folder, InstanceName & ".json")
+        Dim ClientJar As String = Path.Combine(Folder, InstanceName & ".jar")
+        Dim ResDir As String = Path.Combine(BaseDir(), "resources", "26.3")
+        Dim Code As Integer = Prepare(MinecraftFolder, ResDir,
+            If(File.Exists(VersionJson), VersionJson, Nothing),
+            If(File.Exists(ClientJar), ClientJar, Nothing),
+            Sub(Progress As Double) Task.Progress = Progress)
+        If Code <> 0 Then Throw New Exception("资源准备失败，退出码 " & Code & "，详细信息见日志")
+        If Not File.Exists(Path.Combine(ResDir, "horizon-resources.json")) Then
+            Throw New Exception("资源准备没有生成 horizon-resources.json")
+        End If
+    End Sub
 
     ''' <summary>
     ''' 调用 Rust 后端下载并准备 26.3 资源。返回进程退出码。
     ''' </summary>
     Public Function Prepare(Optional minecraftDir As String = "", Optional resourcesDir As String = "",
-                            Optional versionJson As String = Nothing, Optional clientJar As String = Nothing) As Integer
+                            Optional versionJson As String = Nothing, Optional clientJar As String = Nothing,
+                            Optional progress As Action(Of Double) = Nothing) As Integer
         If Not File.Exists(BackendPath()) Then
             Logger.Warn("LiteCraft 后端不存在：" & BackendPath())
             Return -1
@@ -265,12 +299,22 @@ Public Module ModLiteCraft
                 .StandardErrorEncoding = Encoding.UTF8
             }
             Dim P As New Process With {.StartInfo = Info}
-            AddHandler P.OutputDataReceived, Sub(sender, e) If e.Data IsNot Nothing Then Logger.Info("[LiteCraft] " & e.Data)
+            If progress IsNot Nothing Then progress(0.05)
+            AddHandler P.OutputDataReceived,
+                Sub(sender, e)
+                    If e.Data Is Nothing Then Return
+                    Logger.Info("[LiteCraft] " & e.Data)
+                    If progress IsNot Nothing Then
+                        If e.Data.Contains("准备游戏资源") Then progress(0.35)
+                        If e.Data.Contains("复制音效") Then progress(0.85)
+                    End If
+                End Sub
             AddHandler P.ErrorDataReceived, Sub(sender, e) If e.Data IsNot Nothing Then Logger.Info("[LiteCraft] " & e.Data)
             P.Start()
             P.BeginOutputReadLine()
             P.BeginErrorReadLine()
             P.WaitForExit()
+            If progress IsNot Nothing Then progress(1.0)
             Return P.ExitCode
         Catch ex As Exception
             Logger.Warn(ex, "LiteCraft 资源准备失败")
@@ -279,19 +323,21 @@ Public Module ModLiteCraft
     End Function
 
     Private Function Quote(Value As String) As String
-        Return Chr(34) & Value & Chr(34)
+        '路径以反斜杠结尾时，双写反斜杠，避免把结尾引号转义掉
+        Dim Escaped As String = Value
+        If Escaped.EndsWith("\", StringComparison.Ordinal) Then Escaped &= "\"
+        Return Chr(34) & Escaped & Chr(34)
     End Function
 
     ''' <summary>
     ''' 把 LiteCraft 26.3 注册到 PCL 的版本列表，供启动页直接启动。
     ''' </summary>
-    Public Sub EnsureVersion()
+    Public Sub EnsureVersion(Optional VersionFolder As String = Nothing, Optional VersionName As String = Nothing)
         Try
             If String.IsNullOrEmpty(McFolderSelected) Then Return
             If Not Installed() Then Return
-
-            Dim VersionName As String = "LiteCraft 26.3"
-            Dim Folder As String = Path.Combine(McFolderSelected, "versions", VersionName)
+            If String.IsNullOrEmpty(VersionName) Then VersionName = "LiteCraft 26.3"
+            Dim Folder As String = If(String.IsNullOrEmpty(VersionFolder), Path.Combine(McFolderSelected, "versions", VersionName), VersionFolder)
             Dim JsonPath As String = Path.Combine(Folder, VersionName & ".json")
             Dim MarkerPath As String = Path.Combine(Folder, "litecraft.json")
             Dim Marker As New JObject()
@@ -311,6 +357,7 @@ Public Module ModLiteCraft
             Directory.CreateDirectory(Folder)
             Dim SourceJson As String = Nothing
             For Each Candidate As String In {
+                Path.Combine(Folder, VersionName & ".json"),
                 Path.Combine(DataDir(), "minecraft", "versions", "26.3", "26.3.json"),
                 Path.Combine(BaseDir(), "minecraft", "versions", "26.3", "26.3.json"),
                 Path.Combine(BaseDir(), "version", "26.3.json"),

@@ -501,13 +501,15 @@ Public Class PageDownloadInstall
             '添加最新版本
             Dim CardInfo As New MyCard With {.Title = "最新版本", .Margin = New Thickness(0, 15, 0, 15)}
             Dim PinnedVersions As New List(Of JObject)
-            Dim Release As JObject = Dict("正式版")(0).DeepClone()
-            Release("lore") = "最新正式版，发布于 " & Release("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
-            PinnedVersions.Add(Release)
-            If Dict("正式版")(0)("releaseTime").Value(Of Date) < Dict("预览版")(0)("releaseTime").Value(Of Date) Then
-                Dim Snapshot As JObject = Dict("预览版")(0).DeepClone()
-                Snapshot("lore") = "最新预览版，发布于 " & Snapshot("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
-                PinnedVersions.Add(Snapshot)
+            If Dict("正式版").Any() Then
+                Dim Release As JObject = Dict("正式版")(0).DeepClone()
+                Release("lore") = "最新正式版，发布于 " & Release("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
+                PinnedVersions.Add(Release)
+                If Dict("预览版").Any() AndAlso Dict("正式版")(0)("releaseTime").Value(Of Date) < Dict("预览版")(0)("releaseTime").Value(Of Date) Then
+                    Dim Snapshot As JObject = Dict("预览版")(0).DeepClone()
+                    Snapshot("lore") = "最新预览版，发布于 " & Snapshot("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
+                    PinnedVersions.Add(Snapshot)
+                End If
             End If
             Dim PanInfo As New StackPanel With {.Margin = New Thickness(20, MyCard.SwapedHeight, 18, 0), .VerticalAlignment = VerticalAlignment.Top, .RenderTransform = New TranslateTransform(0, 0)}
             CardInfo.Children.Add(PanInfo)
@@ -1165,12 +1167,7 @@ Public Class PageDownloadInstall
                 Return
             End If
         End If
-        Dim IsLiteCraft As Boolean = ModLiteCraft.IsLiteCraftVersion(Request.Components.MinecraftVersion)
-        If IsLiteCraft Then ModLiteCraft.PendingInstallFolder = Request.InstanceFolder
-        If Not McInstallStart(Request) Then
-            If IsLiteCraft Then ModLiteCraft.PendingInstallFolder = ""
-            Return
-        End If
+        If Not McInstallStart(Request) Then Return
         '返回，这样在再次进入安装页面时这个版本就会显示文件夹已重复
         ExitSelectPage()
     End Sub

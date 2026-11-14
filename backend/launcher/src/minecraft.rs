@@ -318,18 +318,14 @@ pub fn load_version_json(job: &Job) -> Result<(VersionMeta, PathBuf), String> {
     let Some(path) = &job.paths.version_json else {
         return ensure_version_json(job);
     };
-    let pins = pins();
     let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
     let meta: VersionMeta = serde_json::from_str(&text)
         .map_err(|e| format!("{}: 版本信息无法解析: {e}", path.display()))?;
-    if meta.id != pins.version {
-        return Err(format!(
-            "{} 的版本 id 是 {}，不是 {}",
-            path.display(),
-            meta.id,
-            pins.version
-        ));
+    if meta.id.trim().is_empty() {
+        return Err(format!("{} 缺少版本 id", path.display()));
     }
+    // PCL 会把 id 改成安装实例名（例如 LiteCraft 26），客户端 JAR 的 SHA-1 仍由
+    // ensure_game_files 对照研究锁校验。
     Ok((meta, path.clone()))
 }
 
