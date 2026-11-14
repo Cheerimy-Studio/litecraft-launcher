@@ -6,9 +6,13 @@ Minecraft 26.3 的 Rust 客户端 **LiteCraft** 的启动器。基于 PCL 源代
 
 ## 流程
 
-- 启动、下载、安装、附加包选择、设置、更多等页面全部使用 PCL 原版页面。
-- 下载页保留原版游戏、Mod、整合包、资源包、光影包、数据包；原版游戏里可选择版本和 Forge/Fabric 等附加包，安装进度与 PCL 一致。
-- LiteCraft 26.3 资源已就绪时，启动器自动把它加入版本列表；在启动页选择 LiteCraft 26.3 即可启动 Rust 客户端。
+- 启动、下载、安装、设置、更多等页面使用 PCL 原版页面。
+- 原版游戏的版本列表来自 `manifests/versions.json`，不再读取 Mojang 的完整版本列表。
+- 配置会依次尝试 GitHub 官方 raw 地址与镜像；启动器内置配置的 SHA-256，内容不一致时拒绝使用，避免镜像劫持。
+- 选择 LiteCraft 26.3 后进入 PCL 原版安装页。当前只支持原版安装，Forge、Fabric、OptiFine 等附加组件暂时隐藏。
+- 安装时由 PCL 原生流程下载 26.3 的客户端、依赖库和资源文件，进度与 PCL 一致。
+- 原版文件就绪后，启动器从 GitHub Release 下载 LiteCraft 核心文件（SHA-256 校验），解压到 `LiteCraft/`，再调用后端复用 PCL 已下载的文件准备资源。
+- 资源就绪后，LiteCraft 26.3 自动加入版本列表；在启动页选择它即可启动 Rust 客户端。
 - 游戏用户名必须填写；为空时不会启动。
 - LiteCraft 启动沿用 PCL 的窗口大小和全屏设置；视距在游戏内调整，上限 512 区块。
 - 标题栏和图标使用 LiteCraft 品牌。
@@ -39,6 +43,14 @@ manifests/  26.3 文件清单
 ## 26.3 文件更新
 
 `manifests/26.3.json` 记录固定版本的客户端、服务端、资源索引的 URL 和 SHA-1。`.github/workflows/update-26.3.yml` 会定期对照 `backend/research-lock.json` 校验并更新。
+
+`manifests/versions.json` 是启动器读取的版本列表，包含 26.3 的版本 JSON 地址和 LiteCraft 核心文件的下载地址、镜像、SHA-256 与大小。启动器内置这份配置的 SHA-256；修改 `versions.json` 后必须重新构建启动器并发布，否则启动器会按预期拒绝新配置。
+
+发布新核心时：
+
+1. 打包 `litecraft.exe`、`LiteCraft-Launther.exe`、`prepare/`、`version/26.3.json` 为 `LiteCraft-Core-26.3.zip`，不要包含资源或 Minecraft 素材。
+2. 上传到 GitHub Release，更新 `manifests/versions.json` 里的地址、SHA-256 和大小。
+3. 计算新配置的 SHA-256，更新 `pcl/Plain Craft Launcher 2/Modules/Minecraft/ModLiteCraft.vb` 的 `VersionsConfigSha256`，重新构建启动器。
 
 ## 素材
 

@@ -103,7 +103,7 @@ pub fn run(job: &Job) -> Result<PathBuf, String> {
     let paths = job.paths;
     let pins = minecraft::pins();
 
-    let (meta, _) = minecraft::ensure_version_json(job)?;
+    let (meta, version_json) = minecraft::load_version_json(job)?;
     let server_jar = minecraft::ensure_game_files(job, &meta)?;
     minecraft::ensure_assets(job, &meta)?;
     let java = minecraft::ensure_java(job, pins.java_major, java_component(&meta))?;
@@ -119,7 +119,11 @@ pub fn run(job: &Job) -> Result<PathBuf, String> {
         minecraft_dir: Some(paths.minecraft.clone()),
         server_jar: Some(server_jar),
         java_home: Some(java),
-        inputs: Default::default(),
+        inputs: horizon_prepare::artifacts::Inputs {
+            version_json: Some(version_json),
+            client_jar: paths.client_jar.clone(),
+            ..Default::default()
+        },
         output: Some(paths.resources.clone()),
     };
     let log = |line: &str| (job.log)(line);

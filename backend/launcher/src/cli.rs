@@ -26,6 +26,10 @@ LiteCraft Launther
 
 选项：
   --game-dir DIR        游戏目录
+  --minecraft-dir DIR   PCL 的 .minecraft（复用原版客户端文件）
+  --resources-dir DIR   准备好的资源输出目录
+  --version-json FILE   PCL 已安装的版本 JSON
+  --client-jar FILE     PCL 已安装的客户端 JAR
   --source official|bmclapi|custom
   --custom-base URL     自定义镜像根地址
   --name NAME           玩家名
@@ -41,6 +45,10 @@ pub fn run() -> Option<i32> {
 
     let mut mode: Option<Mode> = None;
     let mut game_dir = String::new();
+    let mut minecraft_dir: Option<String> = None;
+    let mut resources_dir: Option<String> = None;
+    let mut version_json: Option<String> = None;
+    let mut client_jar: Option<String> = None;
     let mut source: Option<Source> = None;
     let mut custom_base: Option<String> = None;
     let mut name: Option<String> = None;
@@ -80,6 +88,10 @@ pub fn run() -> Option<i32> {
                 mode = Some(Mode::InstallPack(url));
             }),
             "--game-dir" => value(&mut i, "--game-dir").map(|dir| game_dir = dir),
+            "--minecraft-dir" => value(&mut i, "--minecraft-dir").map(|dir| minecraft_dir = Some(dir)),
+            "--resources-dir" => value(&mut i, "--resources-dir").map(|dir| resources_dir = Some(dir)),
+            "--version-json" => value(&mut i, "--version-json").map(|path| version_json = Some(path)),
+            "--client-jar" => value(&mut i, "--client-jar").map(|path| client_jar = Some(path)),
             "--source" => value(&mut i, "--source").map(|source_name| {
                 source = Some(match source_name.as_str() {
                     "official" => Source::Official,
@@ -109,7 +121,19 @@ pub fn run() -> Option<i32> {
     };
     let launch_after = args.iter().any(|a| a == "--launch");
 
-    let paths = Paths::resolve(&game_dir);
+    let mut paths = Paths::resolve(&game_dir);
+    if let Some(dir) = minecraft_dir {
+        paths.minecraft = std::path::PathBuf::from(dir);
+    }
+    if let Some(dir) = resources_dir {
+        paths.resources = std::path::PathBuf::from(dir);
+    }
+    if let Some(path) = version_json {
+        paths.version_json = Some(std::path::PathBuf::from(path));
+    }
+    if let Some(path) = client_jar {
+        paths.client_jar = Some(std::path::PathBuf::from(path));
+    }
     let mut settings = Settings::load(&paths.settings_file());
     if !game_dir.is_empty() {
         settings.game_dir = game_dir;

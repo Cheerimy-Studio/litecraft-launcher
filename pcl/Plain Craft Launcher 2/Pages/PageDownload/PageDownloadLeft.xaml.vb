@@ -103,14 +103,7 @@ Public Class PageDownloadLeft
         ResourceVersion.ProjectFilesCache.Clear()
         Select Case SubType
             Case FormMain.PageSubType.DownloadInstall
-                DlClientListLoader.Start(IsForceRestart:=True)
-                DlOptiFineListLoader.Start(IsForceRestart:=True)
-                DlForgeListLoader.Start(IsForceRestart:=True)
-                DlNeoForgeListLoader.Start(IsForceRestart:=True)
-                DlLiteLoaderListLoader.Start(IsForceRestart:=True)
-                DlFabricListLoader.Start(IsForceRestart:=True)
-                DlFabricApiLoader.Start(IsForceRestart:=True)
-                DlOptiFabricLoader.Start(IsForceRestart:=True)
+                ModLiteCraft.LiteCraftVersionListLoader.Start(IsForceRestart:=True)
                 ItemInstall.Checked = True
             Case FormMain.PageSubType.DownloadMod
                 If FrmDownloadMod IsNot Nothing Then

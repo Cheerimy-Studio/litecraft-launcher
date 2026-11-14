@@ -8,10 +8,13 @@ LiteCraft Launcher
 - 在版本列表选择 LiteCraft 26.3，点击“启动游戏”。
 
 下载与安装
-- 下载页是 PCL 原版页面：原版游戏、Mod、整合包、资源包、光影包、数据包。
-- 原版游戏里选择 26.3 或需要的附加包（Forge、Fabric 等），按 PCL 原有流程安装。
-- LiteCraft 26.3 资源已就绪时，启动器会自动把它加入版本列表，不需要重复下载。
-- 原版下载、附加包选择、安装进度都使用 PCL 页面。
+- 下载页使用 PCL 原版页面，但原版游戏的版本列表来自本项目的 GitHub 配置，不再读取 Mojang 的完整版本列表。
+- 配置会依次尝试 GitHub 官方 raw 地址与镜像；每一份内容都用启动器内置的 SHA-256 校验，校验不通过会拒绝使用，防止镜像劫持。
+- 选择 LiteCraft 26.3 后进入 PCL 原版安装页。安装页只保留原版下载，Forge、Fabric、OptiFine 等附加组件暂时隐藏。
+- 安装时由 PCL 原生流程下载 26.3 的客户端、依赖库和资源文件，进度与 PCL 一致。
+- 原版文件下载完成后，启动器从 GitHub Release 下载 LiteCraft 核心文件（同样校验 SHA-256），解压到 LiteCraft 目录，再调用后端复用 PCL 已下载的文件准备资源。
+- 资源准备完成后，LiteCraft 26.3 会自动加入版本列表，可以直接启动。
+- 如果发布包已经带有 LiteCraft\resources\26.3，启动器会直接使用，不需要重新准备。
 
 设置
 - 启动器设置、版本设置、窗口大小等均为 PCL 原版页面。
@@ -21,10 +24,10 @@ LiteCraft Launcher
 文件
 LiteCraft\litecraft.exe              游戏本体
 LiteCraft\LiteCraft-Launther.exe     资源准备后端
-LiteCraft\resources\26.3             已准备的游戏资源
+LiteCraft\resources\26.3             准备好的游戏资源（安装后生成）
 LiteCraft\prepare                    资源准备组件
-.minecraft\versions\LiteCraft 26.3   PCL 版本（首次启动自动生成）
+.minecraft\versions\LiteCraft 26.3   PCL 版本（安装或首次启动后生成）
 
 说明
 本程序是基于 PCL 源代码的第三方修改版，非 PCL 官方发布。原作者：龙腾猫跃（PCL）。
-Minecraft 素材不随程序分发；本包的 resources 是从 Mojang 公开地址下载后在本机准备的。
+Minecraft 素材不随程序分发；资源由 PCL 从 Mojang 公开地址下载，并在本机准备。

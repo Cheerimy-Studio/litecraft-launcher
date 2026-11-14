@@ -17,7 +17,7 @@ Public Class PageDownloadInstall
         If RestrictMcDownload Then
             PageLoaderInit(LoadMinecraft, PanLoad, PanAllBack, Nothing, New LoaderTask(Of String, DlClientListResult)("关闭下载", Sub() Throw New Exception("为遵守相关法律法规，PCL 不再提供 MC 下载功能，非常抱歉 qwq……")), AddressOf LoadMinecraft_OnFinish)
         Else
-            PageLoaderInit(LoadMinecraft, PanLoad, PanAllBack, Nothing, DlClientListLoader, AddressOf LoadMinecraft_OnFinish)
+            PageLoaderInit(LoadMinecraft, PanLoad, PanAllBack, Nothing, ModLiteCraft.LiteCraftVersionListLoader, AddressOf LoadMinecraft_OnFinish)
         End If
     End Sub
 
@@ -26,14 +26,10 @@ Public Class PageDownloadInstall
         If IsLoad Then
             IsSelectNameEdited = False
             ExitSelectPage()
-            If DlClientListLoader.State = LoadState.Finished Then TrySelectWaitingVersion()
+            If ModLiteCraft.LiteCraftVersionListLoader.State = LoadState.Finished Then TrySelectWaitingVersion()
         End If
         IsLoad = True
         PanBack.ScrollToHome()
-        DlOptiFineListLoader.Start()
-        DlLiteLoaderListLoader.Start()
-        DlFabricListLoader.Start()
-        DlNeoForgeListLoader.Start()
 
         '重载预览
         TextSelectName.ValidateRules = New ObjectModel.Collection(Of Validate) From {New ValidateFolderName(McFolderSelected & "versions")}
@@ -60,8 +56,13 @@ Public Class PageDownloadInstall
 
         DisabledPageAnimControls.Remove(BtnStart)
         BtnStart.Show = True
+        'LiteCraft 26.3 是固定的原版版本，安装页只保留原版下载，不显示附加组件
         For Each Card In {CardOptiFine, CardLiteLoader, CardForge, CardNeoForge, CardFabric, CardFabricApi, CardOptiFabric}
             Card.IsSwapped = True
+            Card.Visibility = Visibility.Collapsed
+        Next
+        For Each HintControl In {HintFabricAPI, HintOptiFabric, HintOptiFabricOld, HintModOptiFine}
+            HintControl.Visibility = Visibility.Collapsed
         Next
 
         '如果在选择页面按了刷新键，选择页的东西可能会由于动画被隐藏，但不会由于加载结束而再次显示，因此这里需要手动恢复
@@ -79,16 +80,7 @@ Public Class PageDownloadInstall
         AutoSelectedOptiFabric = False
         PrepareSelectPage()
 
-        '启动 Forge 加载
-        If McVersion.IsStandardFormat(VanillaName) Then
-            Dim ForgeLoader = New LoaderTask(Of String, List(Of DlForgeVersionEntry))("DlForgeVersion " & VanillaName, AddressOf DlForgeVersionMain)
-            LoadForge.State = ForgeLoader
-            ForgeLoader.Start(VanillaName)
-        End If
-
-        '启动 Fabric API、OptiFabric 加载
-        DlFabricApiLoader.Start()
-        DlOptiFabricLoader.Start()
+        'LiteCraft 26.3 暂不提供附加组件安装
 
         AniStart({
             AaOpacity(PanMinecraft, -PanMinecraft.Opacity, 70, 10),
@@ -444,7 +436,7 @@ Public Class PageDownloadInstall
 #Region "加载器"
     Public MinecraftVersions As JArray
     Private Sub LoadMinecraft_OnFinish()
-        MinecraftVersions = CType(DlClientListLoader.Output.Value("versions").DeepClone(), JArray)
+        MinecraftVersions = CType(ModLiteCraft.LiteCraftVersionListLoader.Output.Value("versions").DeepClone(), JArray)
         ShowMinecraftVersionList()
         TrySelectWaitingVersion() '自动选择版本
     End Sub
@@ -1173,7 +1165,12 @@ Public Class PageDownloadInstall
                 Return
             End If
         End If
-        If Not McInstallStart(Request) Then Return
+        Dim IsLiteCraft As Boolean = ModLiteCraft.IsLiteCraftVersion(Request.Components.MinecraftVersion)
+        If IsLiteCraft Then ModLiteCraft.PendingInstallFolder = Request.InstanceFolder
+        If Not McInstallStart(Request) Then
+            If IsLiteCraft Then ModLiteCraft.PendingInstallFolder = ""
+            Return
+        End If
         '返回，这样在再次进入安装页面时这个版本就会显示文件夹已重复
         ExitSelectPage()
     End Sub

@@ -2132,6 +2132,11 @@ Retry:
             Case LoadState.Finished
                 WriteIni(McFolderSelected & "PCL.ini", "InstanceCache", "") '清空缓存（合并安装会先生成文件夹，这会在刷新时误判为可以使用缓存）
                 Hint(Loader.Name & "成功！", HintType.Green)
+                If ModLiteCraft.PendingInstallFolder <> "" Then
+                    Dim LiteCraftFolder As String = ModLiteCraft.PendingInstallFolder
+                    ModLiteCraft.PendingInstallFolder = ""
+                    ModLiteCraft.AfterInstall(LiteCraftFolder)
+                End If
                 'TODO: 自动选择安装成功的版本
             Case LoadState.Failed
                 MyMsgBox(Loader.Error.GetDisplay(True), Loader.Name & "失败", IsWarn:=True)

@@ -18,6 +18,10 @@ pub struct Paths {
     pub minecraft: PathBuf,
     /// Prepared resources handed to the game with `--resources`.
     pub resources: PathBuf,
+    /// Official version JSON installed elsewhere (for example by PCL).
+    pub version_json: Option<PathBuf>,
+    /// Official client JAR installed elsewhere (for example by PCL).
+    pub client_jar: Option<PathBuf>,
     /// `resources/` (or `resources/26.3/`) shipped beside the executable, when present.
     pub bundled_resources: Option<PathBuf>,
     /// The small `prepare/` tree shipped beside the executable (lock, Java sources, exporters).
@@ -85,6 +89,8 @@ impl Paths {
             exe_dir,
             data,
             resources,
+            version_json: None,
+            client_jar: None,
             bundled_resources: bundled,
             game,
             game_exe,

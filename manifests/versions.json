@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "versions": [
+    {
+      "id": "LiteCraft 26.3",
+      "name": "LiteCraft 26.3",
+      "release_time": "2026-09-15T11:23:02+00:00",
+      "version_json": "https://piston-meta.mojang.com/v1/packages/11f1aefe473eefba0af62e3286c33b692807b2eb/26.3.json",
+      "version_json_sha1": "11f1aefe473eefba0af62e3286c33b692807b2eb",
+      "core": {
+        "url": "https://github.com/Cheerimy-Studio/litecraft-launcher/releases/download/v0.2.0/LiteCraft-Core-26.3.zip",
+        "mirrors": [
+          "https://ghproxy.net/https://github.com/Cheerimy-Studio/litecraft-launcher/releases/download/v0.2.0/LiteCraft-Core-26.3.zip",
+          "https://ghfast.top/https://github.com/Cheerimy-Studio/litecraft-launcher/releases/download/v0.2.0/LiteCraft-Core-26.3.zip"
+        ],
+        "sha256": "42e1be7c26a26be1073d4caec70bb8a25b64df24b0aed83774c808b1fe850b92",
+        "size": 48939056
+      }
+    }
+  ]
+}

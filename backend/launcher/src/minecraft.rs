@@ -313,6 +313,26 @@ pub fn ensure_version_json(job: &Job) -> Result<(VersionMeta, PathBuf), String> 
     ))
 }
 
+/// Read the version JSON another launcher (PCL) installed, or fall back to the pinned one.
+pub fn load_version_json(job: &Job) -> Result<(VersionMeta, PathBuf), String> {
+    let Some(path) = &job.paths.version_json else {
+        return ensure_version_json(job);
+    };
+    let pins = pins();
+    let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let meta: VersionMeta = serde_json::from_str(&text)
+        .map_err(|e| format!("{}: 版本信息无法解析: {e}", path.display()))?;
+    if meta.id != pins.version {
+        return Err(format!(
+            "{} 的版本 id 是 {}，不是 {}",
+            path.display(),
+            meta.id,
+            pins.version
+        ));
+    }
+    Ok((meta, path.clone()))
+}
+
 fn accepted(list: &[String], sha1: &str) -> bool {
     list.iter().any(|s| s == sha1)
 }
@@ -336,13 +356,27 @@ pub fn ensure_game_files(job: &Job, meta: &VersionMeta) -> Result<PathBuf, Strin
             client.sha1, pins.client_sha1
         ));
     }
-    let client_path = job
-        .paths
-        .minecraft
-        .join("versions")
-        .join(&pins.version)
-        .join(format!("{}.jar", pins.version));
-    push(&mut jobs, job, client, client_path, &mut bytes);
+    if let Some(path) = &job.paths.client_jar {
+        // PCL already downloaded the client JAR into its own version folder; verify it instead
+        // of writing a second copy into .minecraft.
+        let actual = crate::net::sha1_file(path).map_err(|e| format!("{}: {e}", path.display()))?;
+        if actual != client.sha1 {
+            return Err(format!(
+                "PCL 安装的客户端 JAR 校验失败（{} ≠ {}）：{}",
+                actual,
+                client.sha1,
+                path.display()
+            ));
+        }
+    } else {
+        let client_path = job
+            .paths
+            .minecraft
+            .join("versions")
+            .join(&pins.version)
+            .join(format!("{}.jar", pins.version));
+        push(&mut jobs, job, client, client_path, &mut bytes);
+    }
 
     let libraries = job.paths.minecraft.join("libraries");
     for library in &meta.libraries {
