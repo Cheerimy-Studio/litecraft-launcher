@@ -60,14 +60,6 @@ Public Class PageDownloadInstall
 
         DisabledPageAnimControls.Remove(BtnStart)
         BtnStart.Show = True
-        BtnStart.Visibility = Visibility.Visible
-        BtnStart.Opacity = 1
-        BtnStart.IsHitTestVisible = True
-        Dim BtnScale = TryCast(BtnStart.RenderTransform, ScaleTransform)
-        If BtnScale IsNot Nothing Then
-            BtnScale.ScaleX = 0.85
-            BtnScale.ScaleY = 0.85
-        End If
         'LiteCraft 26.3 是固定的原版版本，安装页只保留原版下载，不显示附加组件
         HideAddonCards()
 

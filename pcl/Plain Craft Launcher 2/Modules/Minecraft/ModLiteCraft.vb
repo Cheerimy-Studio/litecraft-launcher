@@ -140,11 +140,26 @@ Public Module ModLiteCraft
     ''' </summary>
     Public Function InstallLoaders(Folder As String, InstanceName As String, MinecraftFolder As String) As List(Of LoaderBase)
         Dim CoreZip As String = Path.Combine(Path.GetTempPath(), "LiteCraft-Core-26.3-" & Guid.NewGuid().ToString("N") & ".zip")
+        Dim Config As JObject = LoadVersionsConfig()
+        Dim Versions As JArray = TryCast(Config("versions"), JArray)
+        If Versions Is Nothing OrElse Versions.Count = 0 Then Throw New Exception("版本配置为空")
+        Dim Core As JObject = TryCast(Versions(0)("core"), JObject)
+        If Core Is Nothing Then Throw New Exception("版本配置缺少 core")
+        Dim Sha As String = Core("sha256").ToString().ToLowerInvariant()
+        Dim Size As Long = If(Core("size") Is Nothing, -1L, Core("size").Value(Of Long)())
+        Dim Urls As New List(Of String) From {Core("url").ToString()}
+        If Core("mirrors") IsNot Nothing Then
+            For Each Mirror As JToken In Core("mirrors")
+                Urls.Add(Mirror.ToString())
+            Next
+        End If
+        Dim Checker As New FileChecker With {.Hash = Sha, .ActualSize = Size}
+        Dim CoreFile As New NetFile(Urls, CoreZip, Checker)
+
         Dim Result As New List(Of LoaderBase)
-        Result.Add(New LoaderTask(Of String, String)("下载 LiteCraft 核心文件",
-            Sub(Task As LoaderTask(Of String, String))
-                DownloadCore(Task, CoreZip)
-            End Sub) With {.ProgressWeight = 20, .Block = True})
+        '使用 PCL 原生下载加载器，安装页会显示速度、剩余时间与分块进度
+        Result.Add(New LoaderDownload("下载 LiteCraft 核心文件", New List(Of NetFile) From {CoreFile}) With {
+            .ProgressWeight = 20, .Block = True})
         Result.Add(New LoaderTask(Of String, String)("解压 LiteCraft 核心文件",
             Sub(Task As LoaderTask(Of String, String))
                 ExtractCore(Task, CoreZip)
@@ -160,77 +175,6 @@ Public Module ModLiteCraft
             End Sub) With {.ProgressWeight = 1, .Block = True})
         Return Result
     End Function
-
-    Private Sub DownloadCore(Task As LoaderTask(Of String, String), Temp As String)
-        Dim Config As JObject = LoadVersionsConfig()
-        Dim Versions As JArray = TryCast(Config("versions"), JArray)
-        If Versions Is Nothing OrElse Versions.Count = 0 Then Throw New Exception("版本配置为空")
-        Dim Core As JObject = TryCast(Versions(0)("core"), JObject)
-        If Core Is Nothing Then Throw New Exception("版本配置缺少 core")
-
-        Dim Sha As String = Core("sha256").ToString().ToLowerInvariant()
-        Dim Size As Long = If(Core("size") Is Nothing, 0L, Core("size").Value(Of Long)())
-        Dim Urls As New List(Of String) From {Core("url").ToString()}
-        If Core("mirrors") IsNot Nothing Then
-            For Each Mirror As JToken In Core("mirrors")
-                Urls.Add(Mirror.ToString())
-            Next
-        End If
-
-        Dim LastError As String = ""
-        For Each Url As String In Urls
-            Try
-                Logger.Info("下载 LiteCraft 核心文件：" & Url)
-                Using Client As New HttpClient()
-                    Client.Timeout = TimeSpan.FromMinutes(10)
-                    Using Response As HttpResponseMessage = Client.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead).Result
-                        Response.EnsureSuccessStatusCode()
-                        Dim Total As Long? = Response.Content.Headers.ContentLength
-                        Using Source As Stream = Response.Content.ReadAsStreamAsync().Result
-                            Using Dest As Stream = File.Create(Temp)
-                                Dim Buffer(81920) As Byte
-                                Dim Done As Long = 0
-                                Do
-                                    If Task.IsCanceled Then Throw New OperationCanceledException()
-                                    Dim Read As Integer = Source.Read(Buffer, 0, Buffer.Length)
-                                    If Read <= 0 Then Exit Do
-                                    Dest.Write(Buffer, 0, Read)
-                                    Done += Read
-                                    If Total.HasValue AndAlso Total.Value > 0 Then Task.Progress = Done / Total.Value
-                                Loop
-                            End Using
-                        End Using
-                    End Using
-                End Using
-
-                Dim Actual As String = CryptographyUtils.ComputeFileHash(Temp, CryptographyUtils.HashMethod.Sha256)
-                If Not String.Equals(Actual, Sha, StringComparison.OrdinalIgnoreCase) Then
-                    Logger.Warn($"LiteCraft 核心文件校验失败：{Url}，实际 SHA-256 {Actual}")
-                    File.Delete(Temp)
-                    LastError = "SHA-256 校验失败"
-                    Continue For
-                End If
-                If Size > 0 AndAlso New FileInfo(Temp).Length <> Size Then
-                    Logger.Warn($"LiteCraft 核心文件大小不符：{Url}")
-                    File.Delete(Temp)
-                    LastError = "文件大小不符"
-                    Continue For
-                End If
-                Task.Progress = 1
-                Return
-            Catch ex As OperationCanceledException
-                Throw
-            Catch ex As Exception
-                Logger.Warn(ex, "LiteCraft 核心文件下载失败：" & Url)
-                LastError = ex.Message
-                Try
-                    If File.Exists(Temp) Then File.Delete(Temp)
-                Catch
-                End Try
-            End Try
-        Next
-        Throw New Exception("LiteCraft 核心文件下载失败：" & LastError)
-    End Sub
 
     Private Sub ExtractCore(Task As LoaderTask(Of String, String), Temp As String)
         If Not File.Exists(Temp) Then Throw New Exception("核心文件不存在：" & Temp)
