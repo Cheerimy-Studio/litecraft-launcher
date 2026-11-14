@@ -7,8 +7,6 @@
     PanScroll="PanBack">
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel x:Name="PanMain" Margin="25,25,25,25">
-            <local:MyHint Text="这些设置只对该游戏版本生效，不影响其他版本。" Theme="Blue" Margin="0,0,0,15"
-                          CanClose="True" RelativeSetup="HintIndieSetup"  />
             <local:MyCard x:Name="CardArgument" Margin="0,0,0,15" Title="启动选项">
                 <StackPanel Margin="25,40,25,21">
                     <Grid>
@@ -171,8 +169,6 @@
                             <local:MyComboBoxItem Content="正版登录或离线登录" IsSelected="True" />
                             <local:MyComboBoxItem Content="仅正版登录" />
                             <local:MyComboBoxItem Content="仅离线登录" />
-                            <local:MyComboBoxItem Content="第三方登录：统一通行证" />
-                            <local:MyComboBoxItem Content="第三方登录：Authlib Injector 或 LittleSkin" />
                         </local:MyComboBox>
                         <TextBlock Name="LabServerNide" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="服务器 ID（必填）" Margin="0,8,25,0" Visibility="Collapsed" />
                         <local:MyTextBox x:Name="TextServerNide" Grid.Row="1" Grid.ColumnSpan="2" ShowValidateResult="False" local:SettingService.Key="VersionServerNide" Grid.Column="1" Margin="0,8,0,0" Visibility="Collapsed" HintText="服主后台 → 集成说明 中提供的服务器 ID">

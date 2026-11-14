@@ -271,6 +271,27 @@ NextInner:
         Dim WindowHeight As Integer = Settings.Get(Of Integer)("LaunchArgumentWindowHeight")
         If WindowWidth < 100 Then WindowWidth = 1280
         If WindowHeight < 100 Then WindowHeight = 720
+        '正版登录时把账号会话交给游戏，离线登录只传名字
+        Dim SessionFile As String = Nothing
+        If TypeOf LoginData Is McLoginMs Then
+            Dim MsData = CType(LoginData, McLoginMs)
+            If Not String.IsNullOrEmpty(MsData.AccessToken) Then
+                Dim Xuid As String = ""
+                Try
+                    If Not String.IsNullOrEmpty(MsData.ProfileJson) Then Xuid = JObject.Parse(MsData.ProfileJson)("xuid")?.ToString()
+                Catch
+                End Try
+                Dim Session As New JObject()
+                Session("name") = UserName
+                Session("uuid") = MsData.Uuid
+                Session("access_token") = MsData.AccessToken
+                Session("user_type") = "msa"
+                If Not String.IsNullOrEmpty(Xuid) Then Session("xuid") = Xuid
+                SessionFile = Path.Combine(Path.GetTempPath(), "litecraft-session-" & Guid.NewGuid().ToString("N") & ".json")
+                File.WriteAllText(SessionFile, Session.ToString(), New UTF8Encoding(False))
+            End If
+        End If
+        Dim ServerEnter As String = Settings.Get(Of String)("VersionServerEnter", Instance:=McInstanceSelected)
         Dim Arguments As String =
             "--resources " & Chr(34) & Resources & Chr(34) &
             " --game-dir " & Chr(34) & GameDir & Chr(34) &
@@ -278,6 +299,8 @@ NextInner:
             " --name " & Chr(34) & UserName & Chr(34) &
             " --width " & WindowWidth.ToString() & " --height " & WindowHeight.ToString()
         If WindowType = 0 Then Arguments &= " --fullscreen"
+        If SessionFile IsNot Nothing Then Arguments &= " --session-file " & Chr(34) & SessionFile & Chr(34)
+        If Not String.IsNullOrWhiteSpace(ServerEnter) Then Arguments &= " --server " & Chr(34) & ServerEnter & Chr(34)
         McLaunchLog("启动 LiteCraft：" & Game)
         Dim Info As New ProcessStartInfo(Game, Arguments) With {
             .WorkingDirectory = GameDir,
@@ -294,6 +317,18 @@ NextInner:
         P.Start()
         P.BeginOutputReadLine()
         P.BeginErrorReadLine()
+        '进程优先级
+        Try
+            P.PriorityBoostEnabled = True
+            Select Case Settings.Get(Of Integer)("LaunchArgumentPriority")
+                Case 0
+                    P.PriorityClass = ProcessPriorityClass.AboveNormal
+                Case 2
+                    P.PriorityClass = ProcessPriorityClass.BelowNormal
+            End Select
+        Catch ex As Exception
+            Logger.Warn(ex, "设置 LiteCraft 进程优先级失败")
+        End Try
         '自定义游戏窗口标题
         Dim WindowTitle As String = Settings.Get(Of String)("VersionArgumentTitle", Instance:=McInstanceSelected)
         If String.IsNullOrEmpty(WindowTitle) Then WindowTitle = Settings.Get(Of String)("LaunchArgumentTitle")
