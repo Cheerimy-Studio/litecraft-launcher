@@ -11,7 +11,7 @@ Minecraft 26.3 的 Rust 客户端 **LiteCraft** 的启动器。基于 PCL 源代
 - 配置会依次尝试 GitHub 官方 raw 地址与镜像；启动器内置配置的 SHA-256，内容不一致时拒绝使用，避免镜像劫持。
 - 选择 LiteCraft 26.3 后进入 PCL 原版安装页。当前只支持原版安装，Forge、Fabric、OptiFine 等附加组件暂时隐藏。
 - 安装时由 PCL 原生流程下载 26.3 的客户端、依赖库和资源文件，进度与 PCL 一致。
-- 原版文件就绪后，启动器从 GitHub Release 下载 LiteCraft 核心文件（SHA-256 校验），解压到 `LiteCraft/`，再调用后端复用 PCL 已下载的文件准备资源。
+- 原版文件下载完成后，安装任务会继续显示“下载 LiteCraft 核心文件”“解压 LiteCraft 核心文件”“准备 LiteCraft 资源”等步骤；核心文件来自 GitHub Release 并校验 SHA-256，资源准备复用 PCL 已下载的客户端、依赖库和资源文件。
 - 资源就绪后，LiteCraft 26.3 自动加入版本列表；在启动页选择它即可启动 Rust 客户端。
 - 游戏用户名必须填写；为空时不会启动。
 - LiteCraft 启动沿用 PCL 的窗口大小和全屏设置；视距在游戏内调整，上限 512 区块。

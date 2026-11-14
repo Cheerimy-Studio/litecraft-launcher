@@ -30,6 +30,10 @@ Public Class PageDownloadInstall
         End If
         IsLoad = True
         PanBack.ScrollToHome()
+        DlOptiFineListLoader.Start()
+        DlLiteLoaderListLoader.Start()
+        DlFabricListLoader.Start()
+        DlNeoForgeListLoader.Start()
 
         '重载预览
         TextSelectName.ValidateRules = New ObjectModel.Collection(Of Validate) From {New ValidateFolderName(McFolderSelected & "versions")}
@@ -80,7 +84,14 @@ Public Class PageDownloadInstall
         AutoSelectedOptiFabric = False
         PrepareSelectPage()
 
-        'LiteCraft 26.3 暂不提供附加组件安装
+        'LiteCraft 26.3 暂不提供附加组件安装，但保留 PCL 的加载器状态，避免隐藏卡片取到空数据
+        If McVersion.IsStandardFormat(VanillaName) Then
+            Dim ForgeLoader = New LoaderTask(Of String, List(Of DlForgeVersionEntry))("DlForgeVersion " & VanillaName, AddressOf DlForgeVersionMain)
+            LoadForge.State = ForgeLoader
+            ForgeLoader.Start(VanillaName)
+        End If
+        DlFabricApiLoader.Start()
+        DlOptiFabricLoader.Start()
 
         AniStart({
             AaOpacity(PanMinecraft, -PanMinecraft.Opacity, 70, 10),

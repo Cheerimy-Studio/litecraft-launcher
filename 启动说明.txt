@@ -12,7 +12,7 @@ LiteCraft Launcher
 - 配置会依次尝试 GitHub 官方 raw 地址与镜像；每一份内容都用启动器内置的 SHA-256 校验，校验不通过会拒绝使用，防止镜像劫持。
 - 选择 LiteCraft 26.3 后进入 PCL 原版安装页。安装页只保留原版下载，Forge、Fabric、OptiFine 等附加组件暂时隐藏。
 - 安装时由 PCL 原生流程下载 26.3 的客户端、依赖库和资源文件，进度与 PCL 一致。
-- 原版文件下载完成后，启动器从 GitHub Release 下载 LiteCraft 核心文件（同样校验 SHA-256），解压到 LiteCraft 目录，再调用后端复用 PCL 已下载的文件准备资源。
+- 原版文件下载完成后，安装任务会继续显示“下载 LiteCraft 核心文件”“解压 LiteCraft 核心文件”“准备 LiteCraft 资源”等步骤；核心文件来自 GitHub Release 并校验 SHA-256，资源准备复用 PCL 已下载的客户端、依赖库和资源文件。
 - 资源准备完成后，LiteCraft 26.3 会自动加入版本列表，可以直接启动。
 - 如果发布包已经带有 LiteCraft\resources\26.3，启动器会直接使用，不需要重新准备。
 
