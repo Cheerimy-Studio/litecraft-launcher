@@ -760,6 +760,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Heads\LTCat.jpg" />
+    <Resource Include="Images\Heads\Cheerimy.png" />
+    <Resource Include="Images\Heads\LiteCraft.png" />
+    <Resource Include="Images\Splash.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Newtonsoft.Json.dll" />

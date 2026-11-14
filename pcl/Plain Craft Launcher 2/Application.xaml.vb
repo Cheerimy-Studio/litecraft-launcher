@@ -100,7 +100,7 @@ RetryCacheCheck:
             End If
             '设置初始窗口
             If Settings.Get(Of Boolean)("UiLauncherLogo") Then
-                FrmStart = New SplashScreen("Images\icon.ico")
+                FrmStart = New SplashScreen("Images\Splash.png")
                 FrmStart.Show(False, True)
             End If
             '基础信息
