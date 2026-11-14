@@ -216,6 +216,11 @@ Public Class PageInstanceOverall
             '弹窗要求指定脚本的保存位置
             Dim SavePath As String = Dialogs.SaveFile("选择脚本保存位置", "启动 " & PageInstanceLeft.Instance.Name & ".bat", filter:={("bat", "批处理文件")})
             If SavePath Is Nothing Then Return
+            'LiteCraft 版本直接导出 Rust 客户端的启动脚本
+            If ModLiteCraft.ExportLaunchScript(PageInstanceLeft.Instance, SavePath) Then
+                Hint("LiteCraft 启动脚本已导出", HintType.Green)
+                Return
+            End If
             '检查中断（等玩家选完弹窗指不定任务就结束了呢……）
             If McLaunchLoader.State = LoadState.Loading Then
                 Hint("请在当前启动任务结束后再试！", HintType.Red)

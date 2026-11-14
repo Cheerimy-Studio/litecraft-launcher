@@ -62,13 +62,31 @@ Friend Module ModSecret
     Public ColorSemiTransparent As New MyColor(1, Color8)
 
     Public ThemeNow As Integer = -1
-    Public ColorHue As Integer = 210, ColorSat As Integer = 85, ColorLightAdjust As Integer = 0, ColorHueTopbarDelta As OneOf(Of Integer, Integer()) = 0
+    Public ColorHue As Integer = 158, ColorSat As Integer = 70, ColorLightAdjust As Integer = 0, ColorHueTopbarDelta As OneOf(Of Integer, Integer()) = 0
     Public ThemeDontClick As Integer = 0
 
     Public Sub ThemeRefresh(Optional NewTheme As Integer = -1)
         Try
-            If ThemeNow = NewTheme AndAlso NewTheme >= 0 Then Return
-            If NewTheme >= 0 Then ThemeNow = NewTheme
+            If NewTheme >= 0 Then
+                ThemeNow = NewTheme
+                Select Case NewTheme
+                    Case 0 : ColorHue = 210 : ColorSat = 85  '龙猫蓝
+                    Case 1 : ColorHue = 180 : ColorSat = 70  '甜柠青
+                    Case 2 : ColorHue = 158 : ColorSat = 70  '小草绿
+                    Case 3 : ColorHue = 45 : ColorSat = 80   '菠萝黄
+                    Case 4 : ColorHue = 25 : ColorSat = 55   '橡木棕
+                    Case 5 : ColorHue = 0 : ColorSat = 0     '玄素黑
+                    Case 6 : ColorHue = 330 : ColorSat = 65  '铁杆粉
+                    Case 7 : ColorHue = 270 : ColorSat = 60  '神秘紫
+                    Case 8 : ColorHue = 40 : ColorSat = 75   '秋仪金
+                    Case 9 : ColorHue = 20 : ColorSat = 80   '活跃橙
+                    Case 10 : ColorHue = 0 : ColorSat = 75   '跳票红
+                    Case 11 : ColorHue = 220 : ColorSat = 75 '极客蓝
+                    Case 12 : ColorHue = 300 : ColorSat = 80 '滑稽彩
+                    Case 13 : ColorHue = 50 : ColorSat = 80  '欧皇彩
+                    Case Else : ColorHue = 158 : ColorSat = 70
+                End Select
+            End If
 
             Color1 = New MyColor().FromHSL2(ColorHue, ColorSat * 0.2, 25 + ColorLightAdjust * 0.3)
             Color2 = New MyColor().FromHSL2(ColorHue, ColorSat, 45 + ColorLightAdjust)
@@ -133,12 +151,13 @@ Friend Module ModSecret
         End Sub)
     End Sub
     Friend Sub ThemeCheckAll(EffectSetup As Boolean)
+        '所有主题默认可用
     End Sub
     Friend Function ThemeCheckOne(Id As Integer) As Boolean
         Return True
     End Function
     Friend Function ThemeUnlock(Id As Integer, Optional ShowDoubleHint As Boolean = True, Optional UnlockHint As String = Nothing) As Boolean
-        Return False
+        Return True
     End Function
 
 #End Region
@@ -146,7 +165,28 @@ Friend Module ModSecret
 #Region "更新"
 
     Friend Sub UpdateCheckByButton()
-        Hint("该版本中不包含更新功能……")
+        Hint("正在检查更新……", Log:=False)
+        RunInNewThread(
+            Sub()
+                Try
+                    Dim Json As JObject = NetRequestByClientRetry(
+                        "https://api.github.com/repos/Cheerimy-Studio/litecraft-launcher/releases/latest",
+                        RequireJson:=True).DeserializeJson(Of JObject)()
+                    Dim Tag As String = Json("tag_name").ToString().TrimStart("v"c)
+                    Dim Url As String = Json("html_url").ToString()
+                    If Tag = VersionBaseName Then
+                        Hint("当前已是最新版本", HintType.Green)
+                    Else
+                        RunInUi(
+                            Sub()
+                                If MyMsgBox("发现新版本 " & Tag & "，是否打开下载页面？", "检查更新", "打开", "取消") = 1 Then OpenWebsite(Url)
+                            End Sub)
+                    End If
+                Catch ex As Exception
+                    Logger.Warn(ex, "检查更新失败")
+                    Hint("检查更新失败：" & ex.Message, HintType.Red)
+                End Try
+            End Sub, "Update Check")
     End Sub
 
     Friend IsUpdateWaitingRestart As Boolean = False

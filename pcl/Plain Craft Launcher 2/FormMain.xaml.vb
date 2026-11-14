@@ -318,6 +318,10 @@ Public Class FormMain
             End If
         End If
         '刷新主题
+        If Not Settings.Get(Of Boolean)("LiteCraftThemeDefaulted") Then
+            Settings.Set("UiLauncherTheme", 2)
+            Settings.Set("LiteCraftThemeDefaulted", True)
+        End If
         ThemeCheckAll(False)
         ThemeRefresh(Settings.Get(Of Integer)("UiLauncherTheme"))
         '注册拖拽事件（不能直接加 Handles，否则没用；#6340）
@@ -347,7 +351,6 @@ Public Class FormMain
         PageRight = FrmLaunchRight
         FrmLaunchRight.PageState = MyPageRight.PageStates.ContentStay
         '模式提醒
-        If BuildType = BuildTypes.Debug Then Hint("[开发者模式] PCL 正以开发者模式运行，这可能会造成严重的性能下降，请务必立即向开发者反馈此问题！", HintType.Red)
         If ModeDebug Then Hint("[调试模式] PCL 正以调试模式运行，这可能会导致性能下降，若无必要请不要开启！")
         '尽早执行的加载池
         McFolderListLoader.Start(0) '为了让下载已存在文件检测可以正常运行，必须跑一次；为了让启动按钮尽快可用，需要尽早执行；为了与 PageLaunchLeft 联动，需要为 0 而不是 GetUuid
@@ -384,6 +387,12 @@ Public Class FormMain
         End If
         '加载窗口
         ThemeRefreshMain()
+        'LiteCraft：首次运行恢复 PCL 默认窗口大小，避免继承测试或旧配置的超大窗口
+        If Not Settings.Get(Of Boolean)("LiteCraftWindowSizeFixed") Then
+            Settings.Set("WindowHeight", 550)
+            Settings.Set("WindowWidth", 900)
+            Settings.Set("LiteCraftWindowSizeFixed", True)
+        End If
         Try
             Height = Settings.Get(Of Integer)("WindowHeight")
             Width = Settings.Get(Of Integer)("WindowWidth")

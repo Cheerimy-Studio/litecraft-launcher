@@ -15,14 +15,6 @@ Public Class Application
             End If
             '提升主线程优先级
             Thread.CurrentThread.Priority = ThreadPriority.Highest
-            '执行开发版测试
-            If BuildType = BuildTypes.Debug Then
-                Try
-                    ModDevelop.Start()
-                Catch ex As Exception
-                    Logger.Error(ex, "开发者模式测试出错", LogBehavior.Alert)
-                End Try
-            End If
             '检查 .NET Framework 版本
             Try
                 If CInt(RegistryUtils.TryRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full", "Release", 999999)) < 528040 Then OldEnvironmentAssert()

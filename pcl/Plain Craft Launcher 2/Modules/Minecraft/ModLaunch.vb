@@ -216,7 +216,7 @@ NextInner:
     ''' <summary>
     ''' 启动 LiteCraft 26.3：读取版本目录中的 litecraft.json，直接运行 Rust 客户端。
     ''' </summary>
-    Private Function McLoginUserName(Data As McLoginData) As String
+    Friend Function McLoginUserName(Data As McLoginData) As String
         If Data Is Nothing Then Return ""
         Select Case Data.Type
             Case McLoginType.Legacy
@@ -294,6 +294,24 @@ NextInner:
         P.Start()
         P.BeginOutputReadLine()
         P.BeginErrorReadLine()
+        '自定义游戏窗口标题
+        Dim WindowTitle As String = Settings.Get(Of String)("VersionArgumentTitle", Instance:=McInstanceSelected)
+        If String.IsNullOrEmpty(WindowTitle) Then WindowTitle = Settings.Get(Of String)("LaunchArgumentTitle")
+        If Not String.IsNullOrWhiteSpace(WindowTitle) Then
+            WindowTitle = ArgumentReplace(WindowTitle, ReplaceTime:=False)
+            RunInNewThread(
+                Sub()
+                    For i = 1 To 100
+                        If P.HasExited Then Return
+                        P.Refresh()
+                        If P.MainWindowHandle <> IntPtr.Zero Then
+                            ModLiteCraft.SetWindowTextW(P.MainWindowHandle, WindowTitle)
+                            Return
+                        End If
+                        Thread.Sleep(100)
+                    Next
+                End Sub, "LiteCraft Title")
+        End If
         McLaunchProcess = P
         Loader.Progress = 1
         RunInNewThread(

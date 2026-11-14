@@ -69,13 +69,7 @@ Public Class PageDownloadInstall
             BtnScale.ScaleY = 0.85
         End If
         'LiteCraft 26.3 是固定的原版版本，安装页只保留原版下载，不显示附加组件
-        For Each Card In {CardOptiFine, CardLiteLoader, CardForge, CardNeoForge, CardFabric, CardFabricApi, CardOptiFabric}
-            Card.IsSwapped = True
-            Card.Visibility = Visibility.Collapsed
-        Next
-        For Each HintControl In {HintFabricAPI, HintOptiFabric, HintOptiFabricOld, HintModOptiFine}
-            HintControl.Visibility = Visibility.Collapsed
-        Next
+        HideAddonCards()
 
         '如果在选择页面按了刷新键，选择页的东西可能会由于动画被隐藏，但不会由于加载结束而再次显示，因此这里需要手动恢复
         For Each Control In GetAllAnimControls(PanSelect)
@@ -83,6 +77,16 @@ Public Class PageDownloadInstall
             If Control.RenderTransform Is Nothing OrElse TypeOf Control.RenderTransform Is TranslateTransform Then
                 Control.RenderTransform = New TranslateTransform
             End If
+        Next
+    End Sub
+
+    Private Sub HideAddonCards()
+        For Each Card In {CardOptiFine, CardLiteLoader, CardForge, CardNeoForge, CardFabric, CardFabricApi, CardOptiFabric}
+            Card.IsSwapped = True
+            Card.Visibility = Visibility.Collapsed
+        Next
+        For Each HintControl In {HintFabricAPI, HintOptiFabric, HintOptiFabricOld, HintModOptiFine}
+            HintControl.Visibility = Visibility.Collapsed
         Next
     End Sub
 
@@ -126,6 +130,7 @@ Public Class PageDownloadInstall
         FabricApi_Loaded()
         OptiFabric_Loaded()
         ReloadSelected()
+        HideAddonCards()
     End Sub
 
     Public Sub ExitSelectPage() Handles BtnBack.Click
@@ -365,6 +370,7 @@ Public Class PageDownloadInstall
             HintModOptiFine.Visibility = Visibility.Collapsed
         End If
         '结束
+        HideAddonCards()
         Ongoing = False
     End Sub
     ''' <summary>

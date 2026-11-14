@@ -42,11 +42,9 @@
                         <TextBlock VerticalAlignment="Center" Grid.Row="2" HorizontalAlignment="Left" Text="分类" Margin="0,0,25,0" />
                         <local:MyComboBox Grid.Column="1" Grid.Row="2" x:Name="ComboDisplayType">
                             <local:MyComboBoxItem Content="自动" IsSelected="True" />
-                            <local:MyComboBoxItem Content="从版本列表中隐藏" ToolTip="该版本默认将不会在版本列表中显示。&#xa;在版本列表页面按下 F11，即可查看所有隐藏的版本。" />
-                            <local:MyComboBoxItem Content="可安装 Mod 的版本" />
+                            <local:MyComboBoxItem Content="隐藏" ToolTip="该版本默认将不会在版本列表中显示。&#xa;在版本列表页面按下 F11，即可查看所有隐藏的版本。" />
                             <local:MyComboBoxItem Content="常规版本" />
                             <local:MyComboBoxItem Content="不常用版本" />
-                            <local:MyComboBoxItem Content="愚人节版本" />
                         </local:MyComboBox>
                     </Grid>
                     <Grid Margin="0,15,0,7" Height="35">
@@ -65,7 +63,7 @@
                 <WrapPanel Margin="25,30,25,20">
                     <local:MyButton x:Name="BtnFolderVersion" Text="版本文件夹" MinWidth="140" Padding="13,0" Margin="0,13,20,0" Height="35" />
                     <local:MyButton x:Name="BtnFolderSaves" Text="存档文件夹" MinWidth="140" Padding="13,0" Margin="0,13,20,0" Height="35"/>
-                    <local:MyButton x:Name="BtnFolderMods" Text="Mod 文件夹" MinWidth="140" Padding="13,0" Margin="0,13,20,0" Height="35"/>
+                    <local:MyButton x:Name="BtnFolderMods" Text="Mod 文件夹" MinWidth="140" Padding="13,0" Margin="0,13,20,0" Height="35" Visibility="Collapsed" />
                     <local:MyButton x:Name="BtnFolderScreen" Text="截图文件夹" MinWidth="140" Padding="13,0" Margin="0,13,20,0" Height="35" />
                 </WrapPanel>
             </local:MyCard>

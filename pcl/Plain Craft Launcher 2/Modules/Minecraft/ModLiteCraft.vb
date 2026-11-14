@@ -322,6 +322,38 @@ Public Module ModLiteCraft
         End Try
     End Function
 
+    ''' <summary>
+    ''' 导出 LiteCraft 格式的启动脚本（.bat）。返回 False 表示这不是 LiteCraft 版本。
+    ''' </summary>
+    Public Function ExportLaunchScript(Instance As McInstance, SavePath As String) As Boolean
+        Dim MarkerPath As String = Instance.PathVersion & "litecraft.json"
+        If Not File.Exists(MarkerPath) Then Return False
+        Dim Marker As JObject = JObject.Parse(File.ReadAllText(MarkerPath))
+        Dim Game As String = If(Marker("game")?.ToString(), "")
+        Dim Resources As String = If(Marker("resources")?.ToString(), "")
+        Dim GameDir As String = If(Marker("gameDir")?.ToString(), Instance.PathIndie)
+        Dim HomeDir As String = If(Marker("home")?.ToString(), Paths.Base & "PCL\LiteCraft")
+        If String.IsNullOrEmpty(Game) OrElse Not File.Exists(Game) Then Throw New Exception("找不到 LiteCraft 游戏文件：" & Game)
+        Dim LoginData As McLoginData = Nothing
+        RunInUiWait(Sub() LoginData = McLoginInput())
+        Dim UserName As String = McLoginUserName(LoginData)
+        If String.IsNullOrWhiteSpace(UserName) Then Throw New Exception("请先在启动页的「游戏用户名」中输入名字")
+        Dim Lines As New List(Of String) From {
+            "@echo off",
+            "chcp 65001 >nul",
+            "cd /d " & Quote(GameDir),
+            Quote(Game) & " --resources " & Quote(Resources) & " --game-dir " & Quote(GameDir) &
+                " --home " & Quote(HomeDir) & " --name " & Quote(UserName) & " --width 1280 --height 720",
+            "pause"
+        }
+        File.WriteAllLines(SavePath, Lines, New UTF8Encoding(False))
+        Return True
+    End Function
+
+    <System.Runtime.InteropServices.DllImport("user32.dll", CharSet:=System.Runtime.InteropServices.CharSet.Unicode, SetLastError:=True)>
+    Public Function SetWindowTextW(hWnd As IntPtr, lpString As String) As Boolean
+    End Function
+
     Private Function Quote(Value As String) As String
         '路径以反斜杠结尾时，双写反斜杠，避免把结尾引号转义掉
         Dim Escaped As String = Value

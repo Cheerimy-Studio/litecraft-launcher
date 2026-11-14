@@ -11,13 +11,9 @@ Public Class PageInstanceLeft
     End Sub
 
     Public Sub RefreshModDisabled() Handles Me.Loaded
-        If Instance IsNot Nothing AndAlso Instance.Modable Then
-            ItemMod.Visibility = Visibility.Visible
-            ItemModDisabled.Visibility = Visibility.Collapsed
-        Else
-            ItemMod.Visibility = Visibility.Collapsed
-            ItemModDisabled.Visibility = Visibility.Visible
-        End If
+        'LiteCraft 不提供 Mod 管理
+        ItemMod.Visibility = Visibility.Collapsed
+        ItemModDisabled.Visibility = Visibility.Collapsed
     End Sub
 
 #Region "页面切换"

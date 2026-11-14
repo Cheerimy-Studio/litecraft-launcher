@@ -262,8 +262,8 @@
                         <local:MyCheckBox x:Name="CheckOptionsPcl">
                             <local:MyCheckBox.Tag>
                                 <local:ExportOption 
-                                Title="PCL 启动器程序"
-                                Description="打包正式版 PCL，以便没有启动器的玩家安装整合包"
+                                Title="LiteCraft 启动器程序"
+                                Description="打包 LiteCraft Launcher 与核心文件，导出后可直接使用"
                                 DefaultChecked="True" />
                             </local:MyCheckBox.Tag>
                         </local:MyCheckBox>
@@ -272,7 +272,7 @@
                             <local:MyCheckBox x:Name="CheckOptionsPclCustom">
                                 <local:MyCheckBox.Tag>
                                     <local:ExportOption 
-                                Title="PCL 个性化内容"
+                                Title="LiteCraft 个性化内容"
                                 Description="功能隐藏设置、主页、背景音乐和图片等"
                                 DefaultChecked="True" />
                                 </local:MyCheckBox.Tag>
@@ -280,7 +280,7 @@
                         </StackPanel>
                     </StackPanel>
                 </local:MyCard>
-                <local:MyCard Title="高级选项" Margin="0,0,0,15" CanSwap="True" IsSwapped="True">
+                <local:MyCard Title="高级选项" Margin="0,0,0,15" CanSwap="True" IsSwapped="True" Visibility="Collapsed">
                     <StackPanel Margin="25,37,23,20">
                         <local:MyHint Text="建议仅在无法稳定连接 CurseForge 或 Modrinth 时才打包资源文件。&#xa;请不要公开发布含资源文件的整合包，这会违反部分 Mod 的使用协议！"
                                       Theme="Yellow" Margin="0,2,0,8" Visibility="{Binding Checked, ElementName=CheckAdvancedInclude, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -307,7 +307,7 @@
                 </local:MyCard>
             </StackPanel>
         </local:MyScrollViewer>
-        <local:MyExtraTextButton HorizontalAlignment="Center" VerticalAlignment="Bottom"
+        <local:MyExtraTextButton HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="170"
             x:Name="BtnExport" Text="开始导出"
             LogoScale="1.1" Logo="M511 995a128 128 0 0 1-57-13L70 791a126 126 0 0 1-70-113V311a126 126 0 0 1 15-60V248c1-2 3-5 5-8a127 127 0 0 1 49-42L454 13a128 128 0 0 1 112 0l383 190a126 126 0 0 1 72 113v360a126 126 0 0 1-70 115L568 984c-17 7-37 11-57 11z m42-470v370l360-178c14-7 23-21 23-38v-335L554 524zM85 330v347a42 42 0 0 0 23 38l360 178V523L85 330zM135 260l375 189 137-65L286 188 135 260z m245-118l363 197 150-71-365-180a42 42 0 0 0-37 0l-111 53z" />
     </Grid>

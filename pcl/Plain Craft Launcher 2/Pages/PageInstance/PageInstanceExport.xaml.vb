@@ -34,7 +34,7 @@ Public Class PageInstanceExport
         TextExportName.Text = ""
         TextExportName.HintText = PageInstanceLeft.Instance.Name
         TextExportVersion.Text = ""
-        TextExportVersion.HintText = "1.0.0"
+        TextExportVersion.HintText = VersionBaseName
         CheckAdvancedInclude.Checked = False
         CheckAdvancedModrinth.Checked = False
         GetExportOption(CheckOptionsBasic).Description = PageInstanceLeft.Instance.VersionDisplayName()
@@ -420,7 +420,7 @@ Public Class PageInstanceExport
     ''' </summary>
     Private Sub StartExport() Handles BtnExport.Click
         Dim PackName As String = If(String.IsNullOrEmpty(TextExportName.Text), TextExportName.HintText, TextExportName.Text)
-        Dim PackVersion As String = If(String.IsNullOrEmpty(TextExportVersion.Text), "1.0.0", TextExportVersion.Text)
+        Dim PackVersion As String = If(String.IsNullOrEmpty(TextExportVersion.Text), VersionBaseName, TextExportVersion.Text)
 
         '重复任务检查
         Dim LoaderName As String = $"导出整合包：" & PackName
@@ -565,8 +565,14 @@ Public Class PageInstanceExport
             '复制 PCL 版本设置
             If DirectoryUtils.Exists(TargetInstance.PathVersion & "PCL\") Then DirectoryUtils.Copy(TargetInstance.PathVersion & "PCL\", OverridesFolder & "PCL\")
             WriteIni(OverridesFolder & "PCL\Setup.ini", "IsStar", False)
-            '复制 PCL 本体（正式版）
-            If BuildType = BuildTypes.Release AndAlso IncludePCL Then FileUtils.Copy(PathExe, CacheFolder & "Plain Craft Launcher.exe")
+            '复制 LiteCraft 启动器与核心文件
+            If IncludePCL Then
+                FileUtils.Copy(PathExe, CacheFolder & "LiteCraft Launcher.exe")
+                For Each Name As String In {"LiteCraft Launcher.exe.config", "MeloongCore.dll", "MeloongCore.Wpf.dll", "PCLCS.dll", "Microsoft.Win32.Registry.dll"}
+                    If FileUtils.Exists(Paths.Base & Name) Then FileUtils.Copy(Paths.Base & Name, CacheFolder & Name)
+                Next
+                If DirectoryUtils.Exists(Paths.Base & "LiteCraft\") Then DirectoryUtils.Copy(Paths.Base & "LiteCraft\", CacheFolder & "LiteCraft\")
+            End If
             '复制 PCL 个性化内容
             If IncludePCLCustom Then
                 If DirectoryUtils.Exists(Paths.Base & "PCL\Pictures\") Then DirectoryUtils.Copy(Paths.Base & "PCL\Pictures\", CacheFolder & "PCL\Pictures\")

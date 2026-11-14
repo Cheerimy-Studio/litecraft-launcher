@@ -20,25 +20,25 @@
 
             <!-- 颜色表 -->
             <SolidColorBrush x:Key="ColorBrush1">#343d4a</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush2">#0b5bcb</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush3">#1370f3</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush4">#4890f5</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush5">#96c0f9</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush6">#d5e6fd</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush7">#e0eafd</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrush8">#eaf2fe</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrushBg0">#96c0f9</SolidColorBrush>
-            <SolidColorBrush x:Key="ColorBrushBg1">#bee0eafd</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush2">#1f7a5a</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush3">#2fae7a</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush4">#5fc99a</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush5">#a9e6c9</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush6">#d9f5e8</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush7">#e6f9f0</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrush8">#f0fcf7</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrushBg0">#a9e6c9</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrushBg1">#bee6f9f0</SolidColorBrush>
             <Color x:Key="ColorObject1">#343d4a</Color>
-            <Color x:Key="ColorObject2">#0b5bcb</Color>
-            <Color x:Key="ColorObject3">#1370f3</Color>
-            <Color x:Key="ColorObject4">#4890f5</Color>
-            <Color x:Key="ColorObject5">#96c0f9</Color>
-            <Color x:Key="ColorObject6">#d5e6fd</Color>
-            <Color x:Key="ColorObject7">#e0eafd</Color>
-            <Color x:Key="ColorObject8">#eaf2fe</Color>
-            <Color x:Key="ColorObjectBg0">#96c0f9</Color>
-            <Color x:Key="ColorObjectBg1">#bee0eafd</Color>
+            <Color x:Key="ColorObject2">#1f7a5a</Color>
+            <Color x:Key="ColorObject3">#2fae7a</Color>
+            <Color x:Key="ColorObject4">#5fc99a</Color>
+            <Color x:Key="ColorObject5">#a9e6c9</Color>
+            <Color x:Key="ColorObject6">#d9f5e8</Color>
+            <Color x:Key="ColorObject7">#e6f9f0</Color>
+            <Color x:Key="ColorObject8">#f0fcf7</Color>
+            <Color x:Key="ColorObjectBg0">#a9e6c9</Color>
+            <Color x:Key="ColorObjectBg1">#bee6f9f0</Color>
             <SolidColorBrush x:Key="ColorBrushGray1">#404040</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushGray2">#737373</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushGray3">#8c8c8c</SolidColorBrush>
@@ -62,7 +62,7 @@
             <SolidColorBrush x:Key="ColorBrushSemiWhite" Color="#bbffffff" />
             <SolidColorBrush x:Key="ColorBrushWhite" Color="#ffffff" />
             <SolidColorBrush x:Key="ColorBrushTransparent" Color="Transparent" />
-            <SolidColorBrush x:Key="ColorBrushSemiTransparent">#01eaf2fe</SolidColorBrush>
+            <SolidColorBrush x:Key="ColorBrushSemiTransparent">#01f0fcf7</SolidColorBrush>
             <SolidColorBrush x:Key="ColorBrushBackgroundTransparentSidebar" Color="#F1FFFFFF" />
 
             <!-- Window -->
