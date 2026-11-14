@@ -311,6 +311,21 @@ NextInner:
             .StandardOutputEncoding = Encoding.UTF8,
             .StandardErrorEncoding = Encoding.UTF8
         }
+        '离线皮肤、自定义信息与启动画面主题色
+        Dim SkinPath As String = LiteCraftOfflineSkinPath()
+        If Not String.IsNullOrEmpty(SkinPath) Then
+            Info.EnvironmentVariables("HORIZON_OFFLINE_SKIN") = SkinPath
+            If Settings.Get(Of Boolean)("LaunchSkinSlim") OrElse Settings.Get(Of Integer)("LaunchSkinType") = 2 Then
+                Info.EnvironmentVariables("HORIZON_OFFLINE_SKIN_MODEL") = "slim"
+            End If
+        End If
+        Dim GameInfo As String = Settings.Get(Of String)("VersionArgumentInfo", Instance:=McInstanceSelected)
+        If String.IsNullOrWhiteSpace(GameInfo) Then GameInfo = Settings.Get(Of String)("LaunchArgumentInfo")
+        If Not String.IsNullOrWhiteSpace(GameInfo) Then
+            Info.EnvironmentVariables("LITECRAFT_GAME_INFO") = ArgumentReplace(GameInfo, ReplaceTime:=False)
+        End If
+        Info.EnvironmentVariables("LITECRAFT_BOOT_ACCENT") = LiteCraftThemeAccent()
+
         Dim P As New Process With {.StartInfo = Info, .EnableRaisingEvents = True}
         AddHandler P.OutputDataReceived, Sub(sender, e) If e.Data IsNot Nothing Then McLaunchLog(e.Data)
         AddHandler P.ErrorDataReceived, Sub(sender, e) If e.Data IsNot Nothing Then McLaunchLog(e.Data)
@@ -356,6 +371,58 @@ NextInner:
                 McLaunchProcess = Nothing
             End Sub, "LiteCraft Wait")
     End Sub
+
+    ''' <summary>
+    ''' 当前离线皮肤对应的 PNG 路径；Rust 客户端通过环境变量读取。
+    ''' </summary>
+    Private Function LiteCraftOfflineSkinPath() As String
+        Dim SkinType As Integer = Settings.Get(Of Integer)("LaunchSkinType")
+        Select Case SkinType
+            Case 1
+                Return Path.Combine(PathImage, "Skins", "Steve.png")
+            Case 2
+                Return Path.Combine(PathImage, "Skins", "Alex.png")
+            Case 4
+                Dim Custom As String = Paths.AppDataThenName & "CustomSkin.png"
+                If File.Exists(Custom) Then Return Custom
+            Case 3
+                If PageLaunchLeft.SkinLegacy.State = LoadState.Finished AndAlso
+                   Not String.IsNullOrEmpty(PageLaunchLeft.SkinLegacy.Output) AndAlso
+                   File.Exists(PageLaunchLeft.SkinLegacy.Output) Then
+                    Return PageLaunchLeft.SkinLegacy.Output
+                End If
+            Case Else
+                If PageLaunchLeft.SkinLegacy.State = LoadState.Finished AndAlso
+                   Not String.IsNullOrEmpty(PageLaunchLeft.SkinLegacy.Output) AndAlso
+                   File.Exists(PageLaunchLeft.SkinLegacy.Output) Then
+                    Return PageLaunchLeft.SkinLegacy.Output
+                End If
+        End Select
+        Return Path.Combine(PathImage, "Skins", "Steve.png")
+    End Function
+
+    ''' <summary>
+    ''' 启动画面使用的主题强调色，与启动器当前主题对应。
+    ''' </summary>
+    Private Function LiteCraftThemeAccent() As String
+        Select Case Settings.Get(Of Integer)("UiLauncherTheme")
+            Case 0 : Return "#1370F3"
+            Case 1 : Return "#2FAE9A"
+            Case 2 : Return "#2FAE7A"
+            Case 3 : Return "#E0B23A"
+            Case 4 : Return "#A06A3C"
+            Case 5 : Return "#7A7A7A"
+            Case 6 : Return "#E06A9A"
+            Case 7 : Return "#8A6AD9"
+            Case 8 : Return "#D9A43A"
+            Case 9 : Return "#E07A3A"
+            Case 10 : Return "#D94A4A"
+            Case 11 : Return "#3A7AD9"
+            Case 12 : Return "#C05AD9"
+            Case 13 : Return "#E0C04A"
+            Case Else : Return "#2FAE7A"
+        End Select
+    End Function
 
     ''' <summary>
     ''' 与 McLaunchPrecheck 一致的赞助与正版购买劝导；LiteCraft 启动也必须经过这里。

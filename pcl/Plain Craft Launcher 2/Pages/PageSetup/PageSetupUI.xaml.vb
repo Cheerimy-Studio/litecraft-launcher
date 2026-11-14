@@ -417,7 +417,6 @@ Refresh:
             End If
             '版本设置子页面
             If FrmInstanceLeft IsNot Nothing Then
-                FrmInstanceLeft.ItemModify.Visibility = If(Not HiddenForceShow AndAlso Settings.Get(Of Boolean)("UiHiddenFunctionInstanceModify"), Visibility.Collapsed, Visibility.Visible)
             End If
             '设置子页面
             If FrmSetupLeft IsNot Nothing Then

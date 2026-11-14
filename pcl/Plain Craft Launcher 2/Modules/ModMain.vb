@@ -414,7 +414,6 @@ EndHint:
     Public FrmInstanceModDisabled As PageInstanceModDisabled
     Public FrmInstanceSetup As PageInstanceSetup
     Public FrmInstanceExport As PageInstanceExport
-    Public FrmDownloadModify As PageDownloadModify
 
     '资源信息分页声明
     Public FrmDownloadResourceDetail As PageDownloadResourceDetail

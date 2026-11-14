@@ -10,7 +10,7 @@ Public Module ModLiteCraft
     ''' 版本列表配置的 SHA-256。配置或镜像内容与此不符时视为被篡改，拒绝使用。
     ''' 更新 versions.json 后必须同步更新此值并重新发布启动器。
     ''' </summary>
-    Private Const VersionsConfigSha256 As String = "5c1ef8c4eab0422c1042436c13019f6e649c47534b166f3fa1ef0190c225cb4e"
+    Private Const VersionsConfigSha256 As String = "fb2774de990b978d15e965d9b93afc3b7a655d058d09ace5d39e4113b49f09ba"
 
     Private Function VersionsConfigUrls() As String()
         Const RepoPath As String = "Cheerimy-Studio/litecraft-launcher/main/manifests/versions.json"
