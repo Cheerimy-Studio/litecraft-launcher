@@ -1,16 +1,7 @@
-﻿Public Class PageInstanceOverall
-
-    Private Sub HideLiteCraftAdvanced()
-        If PageInstanceLeft.Instance IsNot Nothing AndAlso
-            File.Exists(Path.Combine(PageInstanceLeft.Instance.PathVersion, "litecraft.json")) Then
-            PanManage.Visibility = Visibility.Collapsed
-        End If
-    End Sub
-
+Public Class PageInstanceOverall
 
     Private IsLoad As Boolean = False
     Private Sub PageSetupLaunch_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
-        HideLiteCraftAdvanced()
 
         '重复加载部分
         PanBack.ScrollToHome()

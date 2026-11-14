@@ -1,4 +1,4 @@
-﻿Public Class PageDownloadInstall
+Public Class PageDownloadInstall
 
     Public Sub ControlInit()
         DisabledPageAnimControls.Add(BtnStart)
@@ -14,7 +14,11 @@
 
     Public Overridable Sub LoaderInit() Handles Me.Initialized
         ControlInit()
-        'LiteCraft 的版本列表是本地固定的，不依赖 Mojang 的版本清单。
+        If RestrictMcDownload Then
+            PageLoaderInit(LoadMinecraft, PanLoad, PanAllBack, Nothing, New LoaderTask(Of String, DlClientListResult)("关闭下载", Sub() Throw New Exception("为遵守相关法律法规，PCL 不再提供 MC 下载功能，非常抱歉 qwq……")), AddressOf LoadMinecraft_OnFinish)
+        Else
+            PageLoaderInit(LoadMinecraft, PanLoad, PanAllBack, Nothing, DlClientListLoader, AddressOf LoadMinecraft_OnFinish)
+        End If
     End Sub
 
     Private IsLoad As Boolean = False
@@ -26,8 +30,6 @@
         End If
         IsLoad = True
         PanBack.ScrollToHome()
-        PanLoad.Visibility = Visibility.Collapsed
-        ShowMinecraftVersionList()
         DlOptiFineListLoader.Start()
         DlLiteLoaderListLoader.Start()
         DlFabricListLoader.Start()
@@ -442,81 +444,103 @@
 #Region "加载器"
     Public MinecraftVersions As JArray
     Private Sub LoadMinecraft_OnFinish()
+        MinecraftVersions = CType(DlClientListLoader.Output.Value("versions").DeepClone(), JArray)
         ShowMinecraftVersionList()
+        TrySelectWaitingVersion() '自动选择版本
     End Sub
 
     '结果数据化
-    Private LiteCraftInstalling As Boolean = False
-
     Public Overridable Sub ShowMinecraftVersionList()
         ExitSelectPage() '返回
-        PanMinecraft.Children.Clear()
-        If Not LiteCraftInstalling Then PanLoad.Visibility = Visibility.Collapsed
-
-        Dim Ready As Boolean = ModLiteCraft.Installed()
-        Dim Card As New MyCard With {.Title = "LiteCraft", .Margin = New Thickness(0, 15, 0, 15)}
-        Dim Stack As New StackPanel With {
-            .Margin = New Thickness(20, MyCard.SwapedHeight, 18, 18),
-            .VerticalAlignment = VerticalAlignment.Top
-        }
-        Dim Item As New MyListItem With {
-            .Title = "LiteCraft 26.3",
-            .Info = If(Ready, "已就绪，到启动页启动；也可以重新准备", "Minecraft 26.3 · Rust 原生客户端 · 点击下载并本地准备"),
-            .Logo = PathImage & "Blocks/Grass.png",
-            .Height = 48,
-            .Type = MyListItem.CheckType.None
-        }
-        Stack.Children.Add(Item)
-
-        Dim BtnInstall As New MyButton With {
-            .Text = If(Ready, "重新准备资源", "安装 LiteCraft 26.3"),
-            .Height = 38,
-            .Width = 260,
-            .HorizontalAlignment = HorizontalAlignment.Left,
-            .Margin = New Thickness(0, 10, 0, 0),
-            .ColorType = MyButton.ColorState.Highlight
-        }
-        AddHandler BtnInstall.Click, Sub(sender, e) InstallLiteCraft(True)
-        Stack.Children.Add(BtnInstall)
-
-        Card.Children.Add(Stack)
-        Card.SwapControl = Stack
-        PanMinecraft.Children.Add(Card)
-
-        If Ready Then ModLiteCraft.EnsureVersion()
-    End Sub
-
-    Private Sub InstallLiteCraft(ForcePrepare As Boolean)
-        If LiteCraftInstalling Then Return
-        If Not ForcePrepare AndAlso ModLiteCraft.Installed() Then
-            ModLiteCraft.EnsureVersion()
-            Hint("LiteCraft 26.3 已就绪，请到启动页启动", HintType.Green)
-            Return
-        End If
-        LiteCraftInstalling = True
-        PanLoad.Visibility = Visibility.Visible
-        LoadMinecraft.Text = "正在下载并准备 LiteCraft 26.3"
-        LoadMinecraft.ShowProgress = True
-        LoadMinecraft.AutoRun = True
-        RunInNewThread(
-            Sub()
-                Dim Code As Integer = ModLiteCraft.Prepare()
-                RunInUi(
-                    Sub()
-                        LiteCraftInstalling = False
-                        PanLoad.Visibility = Visibility.Collapsed
-                        LoadMinecraft.AutoRun = False
-                        If Code = 0 Then
-                            ModLiteCraft.EnsureVersion()
-                            ShowMinecraftVersionList()
-                            Hint("LiteCraft 26.3 安装完成，请到启动页启动", HintType.Green)
-                        Else
-                            Hint("LiteCraft 26.3 安装失败，请查看日志", HintType.Red)
+        Try
+            Dim Dict As New Dictionary(Of String, List(Of JObject)) From {
+                {"正式版", New List(Of JObject)}, {"预览版", New List(Of JObject)}, {"远古版", New List(Of JObject)}, {"愚人节版", New List(Of JObject)}
+            }
+            For Each Version As JObject In MinecraftVersions
+                '确定分类
+                Dim Type As String = Version("type")
+                Select Case Type
+                    Case "release"
+                        Type = "正式版"
+                    Case "snapshot"
+                        Type = "预览版"
+                        'Mojang 误分类
+                        If Version("id").ToString.StartsWithF("1.") AndAlso
+                            Not Version("id").ToString.Lower.Contains("combat") AndAlso
+                            Not Version("id").ToString.Lower.Contains("rc") AndAlso
+                            Not Version("id").ToString.Lower.Contains("experimental") AndAlso
+                            Not Version("id").ToString.Lower.Contains("pre") Then
+                            Type = "正式版"
+                            Version("type") = "release"
                         End If
-                    End Sub)
-            End Sub, "LiteCraft Install")
+                        '愚人节版本
+                        Select Case Version("id").ToString.Lower
+                            Case "20w14infinite", "20w14∞"
+                                Type = "愚人节版"
+                                Version("id") = "20w14∞"
+                                Version("type") = "special"
+                                Version.Add("lore", GetMcFoolName(Version("id")))
+                            Case "3d shareware v1.34", "1.rv-pre1", "15w14a", "2.0", "22w13oneblockatatime", "23w13a_or_b", "24w14potato", "25w14craftmine", "26w14a"
+                                Type = "愚人节版"
+                                Version("type") = "special"
+                                Version.Add("lore", GetMcFoolName(Version("id")))
+                            Case Else '4/1 自动视作愚人节版
+                                Dim ReleaseDate = Version("releaseTime").Value(Of Date).ToUniversalTime().AddHours(2)
+                                If ReleaseDate.Month = 4 AndAlso ReleaseDate.Day = 1 Then
+                                    Type = "愚人节版"
+                                    Version("type") = "special"
+                                End If
+                        End Select
+                    Case "special"
+                        '已被处理的愚人节版
+                        Type = "愚人节版"
+                    Case Else
+                        Type = "远古版"
+                End Select
+                '加入辞典
+                Dict(Type).Add(Version)
+            Next
+            '排序
+            For Each Pair In Dict.ToList
+                Dict(Pair.Key) = Pair.Value.OrderByDescending(Function(j) j("releaseTime").Value(Of Date)).ToList
+            Next
+            '清空当前
+            PanMinecraft.Children.Clear()
+            '添加最新版本
+            Dim CardInfo As New MyCard With {.Title = "最新版本", .Margin = New Thickness(0, 15, 0, 15)}
+            Dim PinnedVersions As New List(Of JObject)
+            Dim Release As JObject = Dict("正式版")(0).DeepClone()
+            Release("lore") = "最新正式版，发布于 " & Release("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
+            PinnedVersions.Add(Release)
+            If Dict("正式版")(0)("releaseTime").Value(Of Date) < Dict("预览版")(0)("releaseTime").Value(Of Date) Then
+                Dim Snapshot As JObject = Dict("预览版")(0).DeepClone()
+                Snapshot("lore") = "最新预览版，发布于 " & Snapshot("releaseTime").Value(Of Date).ToString("yyyy'/'MM'/'dd HH':'mm")
+                PinnedVersions.Add(Snapshot)
+            End If
+            Dim PanInfo As New StackPanel With {.Margin = New Thickness(20, MyCard.SwapedHeight, 18, 0), .VerticalAlignment = VerticalAlignment.Top, .RenderTransform = New TranslateTransform(0, 0)}
+            CardInfo.Children.Add(PanInfo)
+            CardInfo.SwapControl = PanInfo
+            CardInfo.SetContentBuilder(PinnedVersions, '使用 Lambda 转发点击事件，避免 #535
+                Function(Version) McDownloadListItem(Version, Sub(sender, e) MinecraftSelected(sender, e), False))
+            CardInfo.BuildContent()
+            PanMinecraft.Children.Insert(0, CardInfo)
+            '添加其他版本
+            For Each Pair As KeyValuePair(Of String, List(Of JObject)) In Dict
+                If Not Pair.Value.Any() Then Continue For
+                '增加卡片
+                Dim NewCard As New MyCard With {.Title = Pair.Key, .Margin = New Thickness(0, 0, 0, 15)}
+                Dim NewStack As New StackPanel With {.Margin = New Thickness(20, MyCard.SwapedHeight, 18, 0), .VerticalAlignment = VerticalAlignment.Top, .RenderTransform = New TranslateTransform(0, 0)}
+                NewCard.Children.Add(NewStack)
+                NewCard.SwapControl = NewStack
+                NewCard.SetContentBuilder(Pair.Value,
+                    Function(Version) McDownloadListItem(Version, Sub(sender, e) MinecraftSelected(sender, e), False))
+                NewCard.IsSwapped = True
+                PanMinecraft.Children.Add(NewCard)
+            Next
+        Catch ex As Exception
+            Logger.Error(ex, "可视化安装版本列表出错")
+        End Try
     End Sub
-
     Private Sub TrySelectWaitingVersion()
         If VersionWaitingSelect Is Nothing Then Return
         For Each Version As JObject In MinecraftVersions

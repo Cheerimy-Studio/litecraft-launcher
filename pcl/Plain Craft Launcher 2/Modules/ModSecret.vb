@@ -15,7 +15,7 @@ Friend Module ModSecret
 
 #Region "网络鉴权"
 
-    Public Const RestrictMcDownload As Boolean = True
+    Public Const RestrictMcDownload As Boolean = False
     Friend Function SecretCdnSign(UrlWithMark As String) As String
         If Not UrlWithMark.EndsWithF("{CDN}") Then Return UrlWithMark
         Return UrlWithMark.Replace("{CDN}", "").Replace(" ", "%20")
@@ -146,10 +146,7 @@ Friend Module ModSecret
 #Region "更新"
 
     Friend Sub UpdateCheckByButton()
-        If MyMsgBox("LiteCraft 修改版通过 GitHub 仓库发布更新。" & vbCrLf & vbCrLf &
-                    "是否打开仓库的 Releases 页面？", "检查更新", "打开 GitHub", "取消") = 1 Then
-            OpenWebsite("https://github.com/Cheerimy-Studio/litecraft-launcher/releases")
-        End If
+        Hint("该版本中不包含更新功能……")
     End Sub
 
     Friend IsUpdateWaitingRestart As Boolean = False

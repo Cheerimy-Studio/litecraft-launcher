@@ -1,34 +1,30 @@
 LiteCraft Launcher
-==================
 
 双击 LiteCraft Launcher.exe 启动。
 
-启动游戏
---------
-1. 在启动页的“游戏用户名”里输入名字（必须填写，1-16 个字符）。
-2. 确认版本为 LiteCraft 26.3。
-3. 点击“启动游戏”。
+首次启动
+- 同意 PCL 的用户协议。
+- 在启动页的“游戏用户名”输入名字（必填，1-16 个字符）。
+- 在版本列表选择 LiteCraft 26.3，点击“启动游戏”。
 
-下载 / 重新准备
----------------
-- 下载页只保留 LiteCraft 26.3。
-- 资源已内置时，启动器会自动把版本加入列表；如需重新准备，点击下载页的“重新准备资源”。
-- 也可以从版本设置进入 LiteCraft 设置，修改视距或打开游戏目录。
+下载与安装
+- 下载页是 PCL 原版页面：原版游戏、Mod、整合包、资源包、光影包、数据包。
+- 原版游戏里选择 26.3 或需要的附加包（Forge、Fabric 等），按 PCL 原有流程安装。
+- LiteCraft 26.3 资源已就绪时，启动器会自动把它加入版本列表，不需要重复下载。
+- 原版下载、附加包选择、安装进度都使用 PCL 页面。
 
-视距
-----
-游戏内：选项 → 视频设置 → 视距，上限 512 区块；滑块上 Shift+点击可直接跳到 512。
-启动器：版本设置 → LiteCraft → 视距（2-512）。
+设置
+- 启动器设置、版本设置、窗口大小等均为 PCL 原版页面。
+- LiteCraft 启动沿用 PCL 的窗口大小和全屏设置。
+- 视距在游戏内“选项 → 视频设置”调整，上限 512 区块；在视距滑块上 Shift+点击可直接跳到 512。
 
 文件
-----
 LiteCraft\litecraft.exe              游戏本体
-LiteCraft\LiteCraft-Launther.exe     下载/准备资源用的后端
+LiteCraft\LiteCraft-Launther.exe     资源准备后端
 LiteCraft\resources\26.3             已准备的游戏资源
 LiteCraft\prepare                    资源准备组件
 .minecraft\versions\LiteCraft 26.3   PCL 版本（首次启动自动生成）
 
 说明
-----
 本程序是基于 PCL 源代码的第三方修改版，非 PCL 官方发布。原作者：龙腾猫跃（PCL）。
 Minecraft 素材不随程序分发；本包的 resources 是从 Mojang 公开地址下载后在本机准备的。

@@ -145,10 +145,4 @@ Public Module ModLiteCraft
         End Try
     End Function
 
-    Public Function RenderDistance() As Integer
-        Dim Value As Integer = Settings.Get(Of Integer)("LiteCraftRenderDistance")
-        If Value < 2 OrElse Value > 512 Then Value = 16
-        Return Value
-    End Function
-
 End Module

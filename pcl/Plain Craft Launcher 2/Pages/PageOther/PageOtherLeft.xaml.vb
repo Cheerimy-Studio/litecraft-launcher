@@ -1,20 +1,8 @@
-﻿Public Class PageOtherLeft
+Public Class PageOtherLeft
 
     Private IsLoad As Boolean = False
     Private IsPageSwitched As Boolean = False '如果在 Loaded 前切换到其他页面，会导致触发 Loaded 时再次切换一次
     Private Sub PageOtherLeft_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
-        ItemHelp.Visibility = Visibility.Collapsed
-        ItemTest.Visibility = Visibility.Collapsed
-        ItemFeedback.Visibility = Visibility.Collapsed
-        ItemVote.Visibility = Visibility.Collapsed
-        ItemAbout.Visibility = Visibility.Visible
-        ItemAbout.Title = "关于"
-        PageID = FormMain.PageSubType.OtherAbout
-        If Not IsPageSwitched Then
-            IsPageSwitched = True
-            ItemAbout.SetChecked(True, False, False)
-        End If
-        Return
         '是否处于隐藏的子页面
         Dim IsHiddenPage As Boolean = False
         If ItemHelp.Checked AndAlso Settings.Get(Of Boolean)("UiHiddenOtherHelp") Then IsHiddenPage = True
@@ -48,14 +36,14 @@
     Public PageID As FormMain.PageSubType
     Public Sub New()
         InitializeComponent()
-        'LiteCraft Launcher：更多页只保留“关于”。
-        ItemHelp.Visibility = Visibility.Collapsed
-        ItemTest.Visibility = Visibility.Collapsed
-        ItemFeedback.Visibility = Visibility.Collapsed
-        ItemVote.Visibility = Visibility.Collapsed
-        ItemAbout.Visibility = Visibility.Visible
-        ItemAbout.Title = "关于"
-        PageID = FormMain.PageSubType.OtherAbout
+        '选择第一个未被禁用的子页面
+        If Not Settings.Get(Of Boolean)("UiHiddenOtherHelp") Then
+            PageID = FormMain.PageSubType.OtherHelp
+        ElseIf Not Settings.Get(Of Boolean)("UiHiddenOtherAbout") Then
+            PageID = FormMain.PageSubType.OtherAbout
+        Else
+            PageID = FormMain.PageSubType.OtherTest
+        End If
     End Sub
 
     ''' <summary>

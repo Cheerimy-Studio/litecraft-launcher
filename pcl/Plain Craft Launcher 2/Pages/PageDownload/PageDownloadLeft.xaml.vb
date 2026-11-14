@@ -1,4 +1,4 @@
-﻿Public Class PageDownloadLeft
+Public Class PageDownloadLeft
     Implements IRefreshable
 
 #Region "页面切换"
@@ -11,17 +11,11 @@
     '隐藏 MC 下载
     Public Sub New()
         InitializeComponent()
-        'LiteCraft 修改版：下载页只保留 LiteCraft，Mod/整合包/资源包/光影/数据包先隐藏。
-        ItemInstall.Title = "LiteCraft"
-        ItemInstall.Visibility = Visibility.Visible
+        If Not RestrictMcDownload Then Return
+        ItemInstall.Visibility = Visibility.Collapsed
         LabResource.Visibility = Visibility.Collapsed
-        ItemMod.Visibility = Visibility.Collapsed
-        ItemPack.Visibility = Visibility.Collapsed
-        ItemDataPack.Visibility = Visibility.Collapsed
-        ItemResourcePack.Visibility = Visibility.Collapsed
-        ItemShader.Visibility = Visibility.Collapsed
-        PageID = FormMain.PageSubType.DownloadInstall
-        ItemInstall.Checked = True
+        PageID = FormMain.PageSubType.DownloadMod
+        ItemMod.Checked = True
     End Sub
 
     ''' <summary>
@@ -109,7 +103,14 @@
         ResourceVersion.ProjectFilesCache.Clear()
         Select Case SubType
             Case FormMain.PageSubType.DownloadInstall
-                If FrmDownloadInstall IsNot Nothing Then FrmDownloadInstall.ShowMinecraftVersionList()
+                DlClientListLoader.Start(IsForceRestart:=True)
+                DlOptiFineListLoader.Start(IsForceRestart:=True)
+                DlForgeListLoader.Start(IsForceRestart:=True)
+                DlNeoForgeListLoader.Start(IsForceRestart:=True)
+                DlLiteLoaderListLoader.Start(IsForceRestart:=True)
+                DlFabricListLoader.Start(IsForceRestart:=True)
+                DlFabricApiLoader.Start(IsForceRestart:=True)
+                DlOptiFabricLoader.Start(IsForceRestart:=True)
                 ItemInstall.Checked = True
             Case FormMain.PageSubType.DownloadMod
                 If FrmDownloadMod IsNot Nothing Then

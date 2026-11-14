@@ -264,16 +264,20 @@ NextInner:
         '赞助与正版购买提示：与 McLaunchPrecheck 保持一致
         Settings.Set("SystemLaunchCount", Settings.Get(Of Integer)("SystemLaunchCount") + 1)
         LiteCraftDonateAndBuyPrompts()
-        Dim Distance As Integer = ModLiteCraft.RenderDistance()
-        WriteLiteCraftOptions(GameDir, Distance)
 
+        '沿用 PCL 的窗口设置
+        Dim WindowType As Integer = Settings.Get(Of Integer)("LaunchArgumentWindowType")
+        Dim WindowWidth As Integer = Settings.Get(Of Integer)("LaunchArgumentWindowWidth")
+        Dim WindowHeight As Integer = Settings.Get(Of Integer)("LaunchArgumentWindowHeight")
+        If WindowWidth < 100 Then WindowWidth = 1280
+        If WindowHeight < 100 Then WindowHeight = 720
         Dim Arguments As String =
             "--resources " & Chr(34) & Resources & Chr(34) &
             " --game-dir " & Chr(34) & GameDir & Chr(34) &
             " --home " & Chr(34) & HomeDir & Chr(34) &
             " --name " & Chr(34) & UserName & Chr(34) &
-            " --render-distance " & Distance.ToString() &
-            " --width 1280 --height 720"
+            " --width " & WindowWidth.ToString() & " --height " & WindowHeight.ToString()
+        If WindowType = 0 Then Arguments &= " --fullscreen"
         McLaunchLog("启动 LiteCraft：" & Game)
         Dim Info As New ProcessStartInfo(Game, Arguments) With {
             .WorkingDirectory = GameDir,
@@ -298,21 +302,6 @@ NextInner:
                 McLaunchLog("LiteCraft 已退出（退出码 " & P.ExitCode & "）")
                 McLaunchProcess = Nothing
             End Sub, "LiteCraft Wait")
-    End Sub
-
-    Private Sub WriteLiteCraftOptions(GameDir As String, Distance As Integer)
-        Dim OptionsPath As String = Path.Combine(GameDir, "options.txt")
-        Dim Lines As New List(Of String)
-        If File.Exists(OptionsPath) Then Lines.AddRange(File.ReadAllLines(OptionsPath))
-        Dim Replaced As Boolean = False
-        For i = 0 To Lines.Count - 1
-            If Lines(i).StartsWith("renderDistance:") Then
-                Lines(i) = "renderDistance:" & Distance
-                Replaced = True
-            End If
-        Next
-        If Not Replaced Then Lines.Add("renderDistance:" & Distance)
-        File.WriteAllLines(OptionsPath, Lines)
     End Sub
 
     ''' <summary>

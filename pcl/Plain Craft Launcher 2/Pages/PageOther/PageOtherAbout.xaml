@@ -1,4 +1,4 @@
-﻿<local:MyPageRight
+<local:MyPageRight
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:PCL" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,22 +7,6 @@
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel x:Name="PanMain" Margin="25,10" Grid.IsSharedSizeScope="True">
             <local:MyCard Margin="0,15" Title="关于">
-                <StackPanel Margin="21,40,21,16">
-                    <TextBlock Text="LiteCraft Launcher" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource ColorBrush1}" />
-                    <TextBlock Text="Minecraft 26.3 的 Rust 客户端启动器。" FontSize="13" Foreground="{DynamicResource ColorBrush1}" Margin="0,8,0,0" />
-                    <TextBlock Text="基于 PCL 源代码的第三方修改版，非 PCL 官方发布。" FontSize="13" Foreground="{DynamicResource ColorBrush1}" Margin="0,4,0,0" />
-                    <TextBlock Text="原作者：龙腾猫跃（PCL）" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,4,0,0" />
-                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                        <local:MyButton Text="赞助 PCL / 龙腾猫跃" Width="220" Height="34" ColorType="Highlight"
-                                        local:CustomEventService.EventType="打开网页"
-                                        local:CustomEventService.EventData="https://meloong.com/afd/a/LTCat" />
-                        <local:MyButton Text="LiteCraft GitHub" Width="190" Height="34" Margin="10,0,0,0"
-                                        local:CustomEventService.EventType="打开网页"
-                                        local:CustomEventService.EventData="https://github.com/Cheerimy-Studio/litecraft-launcher" />
-                    </StackPanel>
-                </StackPanel>
-            </local:MyCard>
-            <local:MyCard Margin="0,15" Title="关于" Visibility="Collapsed">
                 <Grid Margin="21,40,21,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="45" />
@@ -58,7 +42,7 @@
                                     x:Name="BtnAboutUpdate" />
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="特别鸣谢" Visibility="Collapsed">
+            <local:MyCard Margin="0,0,0,15" Title="特别鸣谢">
                 <Grid Margin="21,40,21,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="45" />
@@ -144,11 +128,10 @@
                     </Image>
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="赞助者" Visibility="Collapsed">
+            <local:MyCard Margin="0,0,0,15" Title="赞助者">
                 <StackPanel Margin="25,40,19,20">
                     <TextBlock HorizontalAlignment="Left" Text="以下是近期的高级赞助者们！感谢大家对 PCL 的支持！！！" Margin="0,0,25,5.5" TextTrimming="None" TextWrapping="WrapWithOverflow" />
-                    <WrapPanel Margin="0,0,0,10">
-                        <TextBlock Margin="0,1.5,6,0" Text="·" />
+                    <WrapPanel Margin="0,0,0,10">                        <TextBlock Margin="0,1.5,6,0" Text="·" />
                         <TextBlock Margin="0,1.5,6,0" Text="J" />
                         <TextBlock Margin="0,1.5,6,0" Text="c" />
                         <TextBlock Margin="0,1.5,6,0" Text="1" />
@@ -1443,7 +1426,7 @@
                     </Grid>
                 </StackPanel>
             </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="法律信息" IsSwapped="True" CanSwap="True" Visibility="Collapsed">
+            <local:MyCard Margin="0,0,0,15" Title="法律信息" IsSwapped="True" CanSwap="True">
                 <StackPanel Margin="25,39,23,20">
                     <TextBlock Text="匿名数据收集" TextWrapping="Wrap" Margin="0,6,0,4" FontWeight="Bold" />
                     <TextBlock Margin="0,0,0,2" LineHeight="17" Text="当下载失败、PCL 出错、游戏崩溃等事件时，PCL 会匿名上报信息，以通知龙猫 “哦吼，出错了”，让龙猫能更好地修 Bug……（PCL 不会上传或收集任何个人信息，包括上报的东西里面也没有！）&#xa;你可以在 设置 → 其他 → 启动器 中关闭上报，不过龙猫就不知道你遇到了什么 Bug 了……&#xa;详情：https://github.com/Meloong-Git/PCL/discussions/7036" TextWrapping="Wrap" />

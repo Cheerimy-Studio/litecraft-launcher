@@ -1,4 +1,4 @@
-﻿Public Class PageInstanceSetup
+Public Class PageInstanceSetup
 
     Private LoadedFirst As Boolean = False
     Private Sub PageSetupSystem_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
@@ -11,7 +11,6 @@
         AniControlEnabled += 1
         Reload()
         AniControlEnabled -= 1
-        RefreshLiteCraft()
 
         '非重复加载部分
         If LoadedFirst Then Return
@@ -45,38 +44,6 @@
         timer.Start()
 
     End Sub
-    Private Sub RefreshLiteCraft()
-        Dim IsLite As Boolean = PageInstanceLeft.Instance IsNot Nothing AndAlso
-            File.Exists(Path.Combine(PageInstanceLeft.Instance.PathVersion, "litecraft.json"))
-        CardLiteCraft.Visibility = If(IsLite, Visibility.Visible, Visibility.Collapsed)
-        CardArgument.Visibility = If(IsLite, Visibility.Collapsed, Visibility.Visible)
-        CardMemory.Visibility = If(IsLite, Visibility.Collapsed, Visibility.Visible)
-        CardServer.Visibility = If(IsLite, Visibility.Collapsed, Visibility.Visible)
-        CardAdvance.Visibility = If(IsLite, Visibility.Collapsed, Visibility.Visible)
-        If IsLite Then
-            TextLiteCraftDistance.Text = ModLiteCraft.RenderDistance().ToString()
-        End If
-    End Sub
-
-    Private Sub BtnLiteCraftSave_Click(sender As Object, e As System.Windows.Input.MouseButtonEventArgs) Handles BtnLiteCraftSave.Click
-        Dim Distance As Integer
-        If Not Integer.TryParse(TextLiteCraftDistance.Text.Trim(), Distance) OrElse Distance < 2 OrElse Distance > 512 Then
-            Hint("视距需要 2-512 区块", HintType.Red)
-            Return
-        End If
-        Settings.Set("LiteCraftRenderDistance", Distance)
-        Hint("LiteCraft 设置已保存", HintType.Green)
-    End Sub
-
-    Private Sub BtnLiteCraftFolder_Click(sender As Object, e As System.Windows.Input.MouseButtonEventArgs) Handles BtnLiteCraftFolder.Click
-        Directory.CreateDirectory(ModLiteCraft.GameDirPath())
-        Process.Start("explorer.exe", """" & ModLiteCraft.GameDirPath() & """")
-    End Sub
-
-    Private Sub BtnLiteCraftInstall_Click(sender As Object, e As System.Windows.Input.MouseButtonEventArgs) Handles BtnLiteCraftInstall.Click
-        FrmMain.PageChange(FormMain.PageType.Download)
-    End Sub
-
     Public Sub Reload()
         Try
 

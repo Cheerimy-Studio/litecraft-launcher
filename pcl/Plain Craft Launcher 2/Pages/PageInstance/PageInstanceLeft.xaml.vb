@@ -1,4 +1,4 @@
-﻿Public Class PageInstanceLeft
+Public Class PageInstanceLeft
     Implements IRefreshable
 
     ''' <summary>
@@ -7,17 +7,17 @@
     Public Shared Instance As McInstance = Nothing
 
     Private Sub PageInstanceLeft_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
-        'LiteCraft Launcher：版本页只保留概览与设置。
-        ItemModify.Visibility = Visibility.Collapsed
-        ItemMod.Visibility = Visibility.Collapsed
-        ItemModDisabled.Visibility = Visibility.Collapsed
-        ItemExport.Visibility = Visibility.Collapsed
         PageSetupUI.HiddenRefresh()
     End Sub
 
     Public Sub RefreshModDisabled() Handles Me.Loaded
-        ItemMod.Visibility = Visibility.Collapsed
-        ItemModDisabled.Visibility = Visibility.Collapsed
+        If Instance IsNot Nothing AndAlso Instance.Modable Then
+            ItemMod.Visibility = Visibility.Visible
+            ItemModDisabled.Visibility = Visibility.Collapsed
+        Else
+            ItemMod.Visibility = Visibility.Collapsed
+            ItemModDisabled.Visibility = Visibility.Visible
+        End If
     End Sub
 
 #Region "页面切换"

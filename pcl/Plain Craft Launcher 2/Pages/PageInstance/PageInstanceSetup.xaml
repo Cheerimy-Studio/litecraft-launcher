@@ -1,4 +1,4 @@
-﻿<local:MyPageRight
+<local:MyPageRight
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:PCL" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,27 +9,6 @@
         <StackPanel x:Name="PanMain" Margin="25,25,25,25">
             <local:MyHint Text="这些设置只对该游戏版本生效，不影响其他版本。" Theme="Blue" Margin="0,0,0,15"
                           CanClose="True" RelativeSetup="HintIndieSetup"  />
-            <local:MyCard x:Name="CardLiteCraft" Margin="0,0,0,15" Title="LiteCraft" Visibility="Collapsed">
-                <StackPanel Margin="25,40,25,21">
-                    <TextBlock Text="游戏名请在启动页的“游戏用户名”中输入；这里可以设置默认视距。"
-                               FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" TextWrapping="Wrap" />
-                    <Grid Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="视距（区块）" VerticalAlignment="Center" Margin="0,0,20,0" />
-                        <local:MyTextBox Grid.Column="1" x:Name="TextLiteCraftDistance" Height="30" MaxLength="3" HintText="2-512" />
-                    </Grid>
-                    <TextBlock Text="视距范围 2-512。游戏内也可以修改；在滑块上 Shift+点击可直接跳到 512。"
-                               FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,8,0,0" TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                        <local:MyButton x:Name="BtnLiteCraftSave" Text="保存设置" Width="240" Height="36" ColorType="Highlight" />
-                        <local:MyButton x:Name="BtnLiteCraftFolder" Text="打开游戏目录" Width="200" Height="36" Margin="10,0,0,0" />
-                        <local:MyButton x:Name="BtnLiteCraftInstall" Text="重新准备资源" Width="200" Height="36" Margin="10,0,0,0" />
-                    </StackPanel>
-                </StackPanel>
-            </local:MyCard>
             <local:MyCard x:Name="CardArgument" Margin="0,0,0,15" Title="启动选项">
                 <StackPanel Margin="25,40,25,21">
                     <Grid>
@@ -104,7 +83,7 @@
                     </Grid>
                 </StackPanel>
             </local:MyCard>
-            <local:MyCard x:Name="CardMemory" Margin="0,0,0,15" Title="内存分配">
+            <local:MyCard Margin="0,0,0,15" Title="内存分配">
                 <StackPanel Margin="25,40,25,15">
                     <Grid Margin="0,0,0,3">
                         <Grid.ColumnDefinitions>
