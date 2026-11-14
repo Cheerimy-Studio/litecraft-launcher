@@ -1,7 +1,8 @@
 {
   "name": "LiteCraft Launcher",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minecraft": "26.3",
   "manifest": "manifests/26.3.json",
-  "release_url": "https://github.com/Cheerimy-Studio/litecraft-launcher/releases/latest"
+  "versions": "manifests/versions.json",
+  "release_url": "https://github.com/Cheerimy-Studio/litecraft-launcher/releases/tag/v0.2.0"
 }
