@@ -11,6 +11,7 @@ Public Class PageInstanceSetup
         AniControlEnabled += 1
         Reload()
         AniControlEnabled -= 1
+        CardArgument.TriggerForceResize()
 
         '非重复加载部分
         If LoadedFirst Then Return

@@ -211,7 +211,7 @@
                     </Grid>
                 </StackPanel>
             </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="主页" x:Name="CardCustom">
+            <local:MyCard Margin="0,0,0,15" Title="主页" x:Name="CardCustom" Visibility="Collapsed">
                 <StackPanel Margin="25,40,25,15">
                     <Grid Margin="-1,0,0,0">
                         <Grid.ColumnDefinitions>
@@ -289,7 +289,7 @@
                     </Grid>
                 </StackPanel>
             </local:MyCard>
-            <local:MyCard x:Name="CardSwitch" Margin="0,0,0,15" Title="功能隐藏">
+            <local:MyCard x:Name="CardSwitch" Margin="0,0,0,15" Title="功能隐藏" Visibility="Collapsed">
                 <StackPanel Margin="25,38,15,15">
                     <TextBlock Margin="0,1,0,1" Text="你可以隐藏不需要的页面或关闭特定功能。在任意界面按 F12 可以暂时显示被隐藏的功能。" TextWrapping="Wrap" />
                     <Grid>

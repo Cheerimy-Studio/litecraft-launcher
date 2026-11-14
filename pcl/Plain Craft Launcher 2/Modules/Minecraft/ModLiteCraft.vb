@@ -251,6 +251,13 @@ Public Module ModLiteCraft
                     If progress IsNot Nothing Then
                         If e.Data.Contains("准备游戏资源") Then progress(0.35)
                         If e.Data.Contains("复制音效") Then progress(0.85)
+                        Dim PercentMatch = System.Text.RegularExpressions.Regex.Match(e.Data, "(\d{1,3})\s*%")
+                        If PercentMatch.Success Then
+                            Dim Percent As Integer
+                            If Integer.TryParse(PercentMatch.Groups(1).Value, Percent) Then
+                                progress(0.05 + Math.Min(100, Percent) / 100.0 * 0.8)
+                            End If
+                        End If
                     End If
                 End Sub
             AddHandler P.ErrorDataReceived, Sub(sender, e) If e.Data IsNot Nothing Then Logger.Info("[LiteCraft] " & e.Data)

@@ -1,4 +1,4 @@
-Public Class PageSetupUI
+﻿Public Class PageSetupUI
 
     Private Sub PageSetupUI_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
         '重复加载部分
@@ -293,7 +293,7 @@ Refresh:
         Hint("已刷新主页！", HintType.Green)
     End Sub
     Private Sub BtnCustomTutorial_Click(sender As Object, e As EventArgs) Handles BtnCustomTutorial.Click
-        MyMsgBox("1. 点击 生成教学文件 按钮，这会在 PCL 文件夹下生成 Custom.xaml 布局文件。" & vbCrLf &
+        MyMsgBox("1. 点击 生成教学文件 按钮，这会在 LiteCraft 文件夹下生成 Custom.xaml 布局文件。" & vbCrLf &
                  "2. 使用记事本等工具打开这个文件并进行修改，修改完记得保存。" & vbCrLf &
                  "3. 点击 刷新主页 按钮，查看主页现在长啥样了。" & vbCrLf &
                  vbCrLf &
@@ -315,7 +315,7 @@ Refresh:
                 FrmSetupUI.PanCustomNet.Visibility = Visibility.Collapsed
                 FrmSetupUI.HintCustom.Visibility = Visibility.Visible
                 FrmSetupUI.HintCustomWarn.Visibility = If(Settings.Get(Of Boolean)("HintCustomWarn"), Visibility.Collapsed, Visibility.Visible)
-                FrmSetupUI.HintCustom.Text = $"从 PCL 文件夹下的 Custom.xaml 读取主页内容。{vbCrLf}你可以手动编辑该文件，向主页添加文本、图片、常用网站、快捷启动等功能。"
+                FrmSetupUI.HintCustom.Text = $"从 LiteCraft 文件夹下的 Custom.xaml 读取主页内容。{vbCrLf}你可以手动编辑该文件，向主页添加文本、图片、常用网站、快捷启动等功能。"
                 CustomEventService.SetEventType(FrmSetupUI.HintCustom, CustomEvent.EventType.None)
             Case 2 '联网
                 FrmSetupUI.PanCustomPreset.Visibility = Visibility.Collapsed
