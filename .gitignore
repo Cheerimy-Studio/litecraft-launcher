@@ -1,0 +1,8 @@
+pcl/**/bin/
+pcl/**/obj/
+pcl/packages/
+pcl/PCL/
+pcl/.minecraft/
+pcl/.vs/
+backend/**/target/
+*.user

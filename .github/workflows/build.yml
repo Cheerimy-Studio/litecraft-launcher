@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - uses: microsoft/setup-msbuild@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        shell: pwsh
+        run: .\build.ps1
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item "pcl/Plain Craft Launcher 2/bin/*" out/ -Recurse
+          if (Test-Path "out/Plain Craft Launcher 2.exe") { Move-Item "out/Plain Craft Launcher 2.exe" "out/LiteCraft Launcher.exe" }
+          if (Test-Path "out/Plain Craft Launcher 2.exe.config") { Move-Item "out/Plain Craft Launcher 2.exe.config" "out/LiteCraft Launcher.exe.config" }
+          New-Item -ItemType Directory -Force out/LiteCraft | Out-Null
+          Copy-Item "backend/launcher/target/release/litecraft-launther.exe" "out/LiteCraft/"
+          Copy-Item "backend/prepare" "out/LiteCraft/prepare" -Recurse
+          Copy-Item "backend/version" "out/LiteCraft/version" -Recurse
+          Copy-Item "LICENCE","LICENSE-LITECRAFT.txt","NOTICE.md","README.md","启动说明.txt" "out/"
+          Compress-Archive -Path "out/*" -DestinationPath "LiteCraft-Launcher-Windows.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LiteCraft-Launcher-Windows
+          path: LiteCraft-Launcher-Windows.zip
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: LiteCraft-Launcher-Windows.zip

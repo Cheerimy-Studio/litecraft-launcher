@@ -1,0 +1,3 @@
+The LiteCraft geometric L mark in litecraft.svg, litecraft.png and litecraft.ico
+is original to this fork and is provided under the MIT license in ../../LICENSE.
+It does not contain Minecraft or Horizon artwork.
